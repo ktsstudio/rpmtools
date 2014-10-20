@@ -7,7 +7,7 @@
 Внутри корневой директории проекта:
 
 ```bash
-git submodule add git@gitlab.corp.mail.ru:intdev/rpm-tools.git
+git submodule add git@gitlab.tech-mail.ru:d.rubtsov/rpmtools.git
 touch BUILD_INFO
 ```
 
