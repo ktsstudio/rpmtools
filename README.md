@@ -1,4 +1,4 @@
-### rpm-tools
+### rpmtools
 
 Этот репозиторий содержит скрипты/шаблоны, упрощающие создание rpm для Django-based проекта.
 
@@ -99,7 +99,7 @@ find ./ -name "*.pyc" -delete
 
 ```bash
 if $DEPLOY ; then
-  cd rpm-tools
+  cd rpmtools
   ./build_rpm.sh
   RESULT=$(ls -1t $(find ${HOME}/rpmbuild/RPMS/ -name "*.rpm") | head -n 1)
   rsync -P --password-file=/var/lib/jenkins/repo.key $RESULT sys.jenkins@pkg.corp.mail.ru::c6-intdev-x86_64
