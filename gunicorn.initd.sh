@@ -25,8 +25,10 @@ RETVAL=0
 
 start() {
     echo -n $"Starting $prog: "
-    cd /opt/${name}/src
-    /usr/bin/${name} run_gunicorn -c /etc/${name}/gunicorn.conf -p ${pidfile}
+    source /opt/${name}/env/bin/activate
+    cd /opt/${name}/src/
+    gunicorn -c /etc/${name}/gunicorn.conf -p ${pidfile} ${name}.wsgi:application
+    deactivate
     RETVAL=$?
     [ $RETVAL = 0 ] && { touch ${lockfile}; success; }
     echo

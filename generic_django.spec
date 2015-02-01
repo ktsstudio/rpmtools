@@ -89,8 +89,8 @@ rm -f %{buildroot}%{__prefix}/%{name}/src/rpmtools/*.initd.sh
 
 # configs
 mkdir -p %{buildroot}%{_sysconfdir}/%{name}
-%{__install} -p -D -m 0755 %{buildroot}%{__prefix}/%{name}/src/default.conf %{buildroot}%{_sysconfdir}/%{name}/%{name}.conf
-%{__install} -p -D -m 0755 %{buildroot}%{__prefix}/%{name}/src/rpmtools/gunicorn.conf %{buildroot}%{_sysconfdir}/%{name}/gunicorn.conf
+%{__install} -p -D -m 0644 %{buildroot}%{__prefix}/%{name}/src/default.conf %{buildroot}%{_sysconfdir}/%{name}/%{name}.conf
+%{__install} -p -D -m 0644 %{buildroot}%{__prefix}/%{name}/src/rpmtools/gunicorn.conf %{buildroot}%{_sysconfdir}/%{name}/gunicorn.conf
 sed -i 's/PROJECT_NAME/%{name}/g' %{buildroot}%{_sysconfdir}/%{name}/gunicorn.conf
 rm -rf %{buildroot}%{__prefix}/%{name}/src/rpmtools/gunicorn.conf
 rm -rf %{buildroot}%{__prefix}/%{name}/src/default.conf
