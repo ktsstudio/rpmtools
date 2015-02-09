@@ -116,10 +116,10 @@ if [ $1 -gt 1 ]; then
     if %{name} > /dev/null 2>&1; then
         %{name} syncdb --migrate --noinput
 
-        service %{name}-gunicorn restart
-        service %{name}-celeryd restart_if_running
-        service %{name}-celeryd_without_beat restart_if_running
-        service %{name}-celerycam restart_if_running
+        #service %{name}-gunicorn restart
+        #service %{name}-celeryd restart_if_running
+        #service %{name}-celeryd_without_beat restart_if_running
+        #service %{name}-celerycam restart_if_running
     fi
 else
     echo "Install"
