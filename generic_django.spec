@@ -105,6 +105,8 @@ mkdir -p %{buildroot}/var/log/%{name}
 mkdir -p %{buildroot}/var/run/%{name}
 mkdir -p %{buildroot}%{__prefix}/%{name}/media/
 
+chown -R %{name}:%{name} /var/log/%{name}
+
 %post
 
 chmod +x /usr/bin/%{name}
