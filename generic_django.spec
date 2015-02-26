@@ -105,9 +105,8 @@ mkdir -p %{buildroot}/var/log/%{name}
 mkdir -p %{buildroot}/var/run/%{name}
 mkdir -p %{buildroot}%{__prefix}/%{name}/media/
 
-chown -R %{name}:%{name} /var/log/%{name}
-
 %post
+
 
 chmod +x /usr/bin/%{name}
 
@@ -133,6 +132,7 @@ else
 
     # logs
     mkdir -p /var/log/%{name}
+    chown -R %{name}:%{name} /var/log/%{name}
 
     echo "1. fill configuration files in /etc/%{name}/"
 fi

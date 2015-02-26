@@ -27,7 +27,7 @@ start() {
     echo -n $"Starting $prog: "
     source /opt/${name}/env/bin/activate
     cd /opt/${name}/src/
-    gunicorn -c /etc/${name}/gunicorn.conf -p ${pidfile} ${name}.wsgi:application
+    gunicorn -c /etc/${name}/gunicorn.conf -p ${pidfile} application.wsgi:application
     deactivate
     RETVAL=$?
     [ $RETVAL = 0 ] && { touch ${lockfile}; success; }
