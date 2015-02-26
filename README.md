@@ -15,10 +15,11 @@ touch BUILD_INFO
 
 ```
 2.1.33
-corpse
-CORP.MAIL.RU
-python mysql mysql-server libjpeg syslog
+technopark
+New Technopark
+python mysql libjpeg syslog
 python rpm-build redhat-rpm-config mysql-devel libjpeg-devel
+application
 ```
 
 1 строка - версия
@@ -26,6 +27,7 @@ python rpm-build redhat-rpm-config mysql-devel libjpeg-devel
 3 - описание проекта
 4 - секция спеки `Requires`
 5 - секция спеки `BuildRequires`
+6 - имя Django проекта (имя дериктории с settings.py)
 
 в `settings.py` нужно дописать:
 

@@ -77,6 +77,7 @@ mv %{name} %{buildroot}%{__prefix}/
 # init.d files for gunicorn, celeryd, celerycam
 %{__install} -p -D -m 0755 %{buildroot}%{__prefix}/%{name}/src/rpmtools/gunicorn.initd.sh %{buildroot}%{_initrddir}/%{name}-gunicorn
 sed -i 's/PROJECT_NAME/%{name}/g' %{buildroot}%{_initrddir}/%{name}-gunicorn
+sed -i 's/WSGI_APPLICATION/%{wsgi}/g' %{buildroot}%{_initrddir}/%{name}-gunicorn
 %{__install} -p -D -m 0755 %{buildroot}%{__prefix}/%{name}/src/rpmtools/celeryd.initd.sh %{buildroot}%{_initrddir}/%{name}-celeryd
 sed -i 's/PROJECT_NAME/%{name}/g' %{buildroot}%{_initrddir}/%{name}-celeryd
 %{__install} -p -D -m 0755 %{buildroot}%{__prefix}/%{name}/src/rpmtools/celeryd_without_beat.initd.sh %{buildroot}%{_initrddir}/%{name}-celeryd_without_beat
@@ -116,11 +117,6 @@ if [ $1 -gt 1 ]; then
     # DB
     if %{name} > /dev/null 2>&1; then
         %{name} syncdb --migrate --noinput
-
-        #service %{name}-gunicorn restart
-        #service %{name}-celeryd restart_if_running
-        #service %{name}-celeryd_without_beat restart_if_running
-        #service %{name}-celerycam restart_if_running
     fi
 else
     echo "Install"
