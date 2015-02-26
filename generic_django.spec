@@ -56,6 +56,9 @@ fi
 #    cp -r '%{source}/../static' %{name}/static
 #fi
 
+mkdir -p '%{source}/conf'
+cp '%{source}/default.conf' '%{source}/conf/%{name}.conf'
+
 %{name}/env/bin/python '%{source}/manage.py' collectstatic --noinput
 mv -f '%{source}/collected_static' %{name}/static
 
