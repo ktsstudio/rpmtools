@@ -32,7 +32,7 @@ fi
 %build
 
 mkdir -p %{name}
-cp -r %{source} %{name}/src
+cp -r '%{source}' %{name}/src
 rm -rf %{name}/src/.git*
 rm -rf %{name}/src/rpmtools/.git*
 if [ -d %{name}/src/sso_client/ ]; then
@@ -42,9 +42,9 @@ rm -rf %{name}/src/.idea*
 
 [ ! -f %{name}/src/wsgi.py ] && cp %{name}/src/rpmtools/wsgi.py %{name}/src/wsgi.py
 
-if [ -d %{source}/env ]; then
-    virtualenv --relocatable %{source}/env
-    cp -r %{source}/env %{name}/env 
+if [ -d '%{source}/env' ]; then
+    virtualenv --relocatable '%{source}/env'
+    cp -r '%{source}/env' %{name}/env
 else
     virtualenv --distribute %{name}/env
     %{name}/env/bin/easy_install -U distribute
@@ -52,12 +52,12 @@ else
     virtualenv --relocatable %{name}/env
 fi
 
-#if [ -d %{source}/../static ]; then
-#    cp -r %{source}/../static %{name}/static
+#if [ -d '%{source}/../static' ]; then
+#    cp -r '%{source}/../static' %{name}/static
 #fi
 
-%{name}/env/bin/python %{source}/manage.py collectstatic --noinput
-mv -f %{source}/collected_static %{name}/static
+%{name}/env/bin/python '%{source}/manage.py' collectstatic --noinput
+mv -f '%{source}/collected_static' %{name}/static
 
 # remove pyc
 find %{name}/ -type f -name "*.py[co]" -delete
