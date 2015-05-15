@@ -84,30 +84,14 @@ if 'test' in sys.argv or 'jenkins' in sys.argv:
 * execute shell 1:
 
 ```bash
-if [ ! -d env ]; then
-    virtualenv --distribute --python=/usr/bin/python2.6 env
-    env/bin/pip install distribute --upgrade
-    env/bin/pip install -r requirements.txt --upgrade
-    virtualenv --relocatable env
-else
-    source env/bin/activate
-    pip install distribute --upgrade
-    pip install -r requirements.txt --upgrade
-fi
-find ./ -name "*.pyc" -delete
+rm -rf /var/lib/jenkins/rpmbuild/RPMS/x86_64/technopark*
+cd rpmtools
+./build_rpm.sh
+export RSYNC_PASSWORD=1xgJGRLK3Ybw1v0
+cd /var/lib/jenkins/rpmbuild/RPMS/x86_64
+rsync technopark* rsync://jenkins@tp-infra1.tech-mail.ru/projects_repos
 ```
 
-* execute shell 2
-
-```bash
-if $DEPLOY ; then
-  cd rpmtools
-  ./build_rpm.sh
-  RESULT=$(ls -1t $(find ${HOME}/rpmbuild/RPMS/ -name "*.rpm") | head -n 1)
-  rsync -P --password-file=/var/lib/jenkins/repo.key $RESULT sys.jenkins@pkg.corp.mail.ru::c6-intdev-x86_64
-  echo "c6-intdev-x64" | nc pkg.corp.mail.ru 12222
-fi
-```
 
 
 
