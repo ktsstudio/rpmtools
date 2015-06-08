@@ -40,27 +40,24 @@ if [ -d %{name}/src/sso_client/ ]; then
 fi
 rm -rf %{name}/src/.idea*
 
-[ ! -f %{name}/src/wsgi.py ] && cp %{name}/src/rpmtools/wsgi.py %{name}/src/wsgi.py
+[ ! -f %{name}/src/wsgi.py ] && cp %{name}/src/rpmtools/django/wsgi.py %{name}/src/wsgi.py
 
 if [ -d '%{source}/env' ]; then
-    virtualenv --relocatable '%{source}/env'
+    %{virtualenv} --relocatable '%{source}/env'
     cp -r '%{source}/env' %{name}/env
 else
-    virtualenv --distribute %{name}/env
+    %{virtualenv} --distribute %{name}/env
     %{name}/env/bin/easy_install -U distribute
     %{name}/env/bin/pip install -r %{name}/src/requirements.txt --upgrade
-    virtualenv --relocatable %{name}/env
+    %{virtualenv} --relocatable %{name}/env
 fi
 
-#if [ -d '%{source}/../static' ]; then
-#    cp -r '%{source}/../static' %{name}/static
-#fi
 
 mkdir -p '%{source}/conf'
-cp '%{source}/default.conf' '%{source}/conf/%{name}.conf'
+cp '%{source}/build/default.conf' '%{source}/conf/%{name}.conf'
 
 %{name}/env/bin/python '%{source}/manage.py' collectstatic --noinput
-mv -f '%{source}/collected_static' %{name}/static
+mv -f '%{source}/static' %{name}/static
 
 # remove pyc
 find %{name}/ -type f -name "*.py[co]" -delete
@@ -78,14 +75,14 @@ mv %{name} %{buildroot}%{__prefix}/
 [ -d %{buildroot}%{__prefix}/%{name}/env/lib64 ] && rm -rf %{buildroot}%{__prefix}/%{name}/env/lib64 && ln -sf %{__prefix}/%{name}/env/lib %{buildroot}%{__prefix}/%{name}/env/lib64
 
 # init.d files for gunicorn, celeryd, celerycam
-%{__install} -p -D -m 0755 %{buildroot}%{__prefix}/%{name}/src/rpmtools/gunicorn.initd.sh %{buildroot}%{_initrddir}/%{name}-gunicorn
+%{__install} -p -D -m 0755 %{buildroot}%{__prefix}/%{name}/src/rpmtools/django/init.d/gunicorn.initd.sh %{buildroot}%{_initrddir}/%{name}-gunicorn
 sed -i 's/PROJECT_NAME/%{name}/g' %{buildroot}%{_initrddir}/%{name}-gunicorn
 sed -i 's/WSGI_APPLICATION/%{wsgi}/g' %{buildroot}%{_initrddir}/%{name}-gunicorn
-%{__install} -p -D -m 0755 %{buildroot}%{__prefix}/%{name}/src/rpmtools/celeryd.initd.sh %{buildroot}%{_initrddir}/%{name}-celeryd
+%{__install} -p -D -m 0755 %{buildroot}%{__prefix}/%{name}/src/rpmtools/django/init.d/celeryd.initd.sh %{buildroot}%{_initrddir}/%{name}-celeryd
 sed -i 's/PROJECT_NAME/%{name}/g' %{buildroot}%{_initrddir}/%{name}-celeryd
-%{__install} -p -D -m 0755 %{buildroot}%{__prefix}/%{name}/src/rpmtools/celeryd_without_beat.initd.sh %{buildroot}%{_initrddir}/%{name}-celeryd_without_beat
+%{__install} -p -D -m 0755 %{buildroot}%{__prefix}/%{name}/src/rpmtools/django/init.d/celeryd_without_beat.initd.sh %{buildroot}%{_initrddir}/%{name}-celeryd_without_beat
 sed -i 's/PROJECT_NAME/%{name}/g' %{buildroot}%{_initrddir}/%{name}-celeryd_without_beat
-%{__install} -p -D -m 0755 %{buildroot}%{__prefix}/%{name}/src/rpmtools/celerycam.initd.sh %{buildroot}%{_initrddir}/%{name}-celerycam
+%{__install} -p -D -m 0755 %{buildroot}%{__prefix}/%{name}/src/rpmtools/django/init.d/celerycam.initd.sh %{buildroot}%{_initrddir}/%{name}-celerycam
 sed -i 's/PROJECT_NAME/%{name}/g' %{buildroot}%{_initrddir}/%{name}-celerycam
 
 rm -f %{buildroot}%{__prefix}/%{name}/src/rpmtools/*.initd.sh
@@ -93,26 +90,27 @@ rm -f %{buildroot}%{__prefix}/%{name}/src/rpmtools/*.initd.sh
 
 # configs
 mkdir -p %{buildroot}%{_sysconfdir}/%{name}
-%{__install} -p -D -m 0644 %{buildroot}%{__prefix}/%{name}/src/default.conf %{buildroot}%{_sysconfdir}/%{name}/%{name}.conf
-%{__install} -p -D -m 0644 %{buildroot}%{__prefix}/%{name}/src/rpmtools/gunicorn.conf %{buildroot}%{_sysconfdir}/%{name}/gunicorn.conf
+%{__install} -p -D -m 0644 %{buildroot}%{__prefix}/%{name}/src/build/default.conf %{buildroot}%{_sysconfdir}/%{name}/%{name}.conf
+%{__install} -p -D -m 0644 %{buildroot}%{__prefix}/%{name}/src/rpmtools/django/conf/gunicorn.conf %{buildroot}%{_sysconfdir}/%{name}/gunicorn.conf
 sed -i 's/PROJECT_NAME/%{name}/g' %{buildroot}%{_sysconfdir}/%{name}/gunicorn.conf
 rm -rf %{buildroot}%{__prefix}/%{name}/src/rpmtools/gunicorn.conf
-rm -rf %{buildroot}%{__prefix}/%{name}/src/default.conf
+rm -rf %{buildroot}%{__prefix}/%{name}/src/build/default.conf
 
 # bin
 mkdir -p %{buildroot}%{_bindir}
-ln -s %{__prefix}/%{name}/src/rpmtools/manage.sh %{buildroot}%{_bindir}/%{name}
+ln -s %{__prefix}/%{name}/src/rpmtools/django/manage.sh %{buildroot}%{_bindir}/%{name}
 
 rm -rf %{buildroot}%{__prefix}/%{name}/src/local_settings.py
+rm -rf %{buildroot}%{__prefix}/%{name}/src/node_modules
 
-mkdir -p %{buildroot}/var/log/%{name}
 mkdir -p %{buildroot}/var/run/%{name}
 mkdir -p %{buildroot}%{__prefix}/%{name}/media/
 
 %post
-
-
 chmod +x /usr/bin/%{name}
+
+mkdir -p /var/log/%{name}
+chown %{name}:%{name} /var/log/%{name}
 
 if [ $1 -gt 1 ]; then
     echo "Upgrade"
@@ -146,10 +144,8 @@ fi
 %clean
 rm -rf %{buildroot}
 
-
 %files
 %defattr(-,root,root)
-
 %{_initrddir}/%{name}-gunicorn
 %{_initrddir}/%{name}-celeryd
 %{_initrddir}/%{name}-celeryd_without_beat
@@ -160,7 +156,4 @@ rm -rf %{buildroot}
 %{_bindir}/%{name}
 
 %defattr(-,%{name},%{name})
-
-/var/log/%{name}/
 /var/run/%{name}/
-%{__prefix}/%{name}/media/
