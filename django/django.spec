@@ -117,7 +117,7 @@ if [ $1 -gt 1 ]; then
 
     # DB
     if %{name} > /dev/null 2>&1; then
-        %{name} syncdb --migrate --noinput
+        %{name} migrate
     fi
 else
     echo "Install"
