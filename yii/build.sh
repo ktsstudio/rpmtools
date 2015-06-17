@@ -9,7 +9,7 @@ summary=$(${META} name)
 version=$(${META} version)
 release=$(date +%s)
 requires=$(${META} yumDependencies)
-buildrequires=$(${META} yumBuildDependencies)
+buildrequires="$(${META} yumBuildDependencies) python-argparse"
 meta=$(echo ${META})
 
 echo "Building $name rpm. Version is $version. Release $release"
