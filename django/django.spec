@@ -35,9 +35,6 @@ mkdir -p %{name}
 cp -r '%{source}' %{name}/src
 rm -rf %{name}/src/.git*
 rm -rf %{name}/src/rpmtools/.git*
-if [ -d %{name}/src/sso_client/ ]; then
-    rm -rf %{name}/src/sso_client/.git*
-fi
 rm -rf %{name}/src/.idea*
 
 [ ! -f %{name}/src/wsgi.py ] && cp %{name}/src/rpmtools/django/wsgi.py %{name}/src/wsgi.py
