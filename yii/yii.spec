@@ -34,6 +34,11 @@ mkdir -p %{name}
 cp -rf %{source} %{name}/ || true
 cd %{name}
 
+if [ -e "package.json" ]
+then
+    npm install || exit 1
+fi
+
 if [ -e "bower.json" ]
 then
     bower install --allow-root || exit 1
