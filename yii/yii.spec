@@ -75,4 +75,5 @@ chown -R %{name}:%{name} /var/lib/%{name}/runtime
 rm -rf %{buildroot}
 
 %files
-%defattr(-,root:%{name}{__prefix}/%{name}
+%defattr(-,root,root)
+%{__prefix}/%{name}
