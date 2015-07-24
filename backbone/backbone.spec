@@ -30,6 +30,8 @@ fi
 
 %build
 mkdir -p %{name}
+cp -rf %{source} %{name}/ || true
+cd %{name}
 
 if [ -e "package.json" ]
 then
@@ -46,12 +48,12 @@ then
     grunt %{grunttask} || exit 1
 fi
 
-cp -rf %{source}/public/* %{name}/
+
 
 
 %install
 mkdir -p %{buildroot}%{__prefix}/
-mv %{name} %{buildroot}%{__prefix}/
+mv %{name}/public %{buildroot}%{__prefix}/%{name}
 
 
 %post
