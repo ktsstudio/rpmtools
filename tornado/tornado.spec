@@ -15,7 +15,7 @@ Autoreq: 0
 
 
 %description
-%{name} built with generic django project spec
+%{name} built with generic tornado project spec
 
 %prep
 if [ -d %{name} ]; then
