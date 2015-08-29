@@ -49,12 +49,29 @@ else
     %{virtualenv} --relocatable %{name}/env
 fi
 
-
 mkdir -p '%{source}/conf'
 cp '%{source}/build/default.conf' '%{source}/conf/%{name}.conf'
+pwd
+pushd '%{name}/src'
+    if [ -e "bower.json" ]
+    then
+        bower install --allow-root || exit 1
+    fi
+    if [ -e "package.json" ]
+    then
+        npm install || exit 1
+    fi
+popd
+%{name}/env/bin/python '%{name}/src/manage.py' collectstatic --noinput
+pushd '%{name}/src'
+    if [ -e "Gruntfile.js" ]
+    then
+        grunt %{grunttask} || exit 1
+    fi
+popd
 
-%{name}/env/bin/python '%{source}/manage.py' collectstatic --noinput
-mv -f '%{source}/static' %{name}/static
+mv -f '%{name}/src/static' %{name}/static
+rm -rf '%{name}/src/core/static/bower_components'
 
 # remove pyc
 find %{name}/ -type f -name "*.py[co]" -delete

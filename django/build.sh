@@ -2,14 +2,15 @@
 CURRENT_DIR=$(cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd)
 SOURCE_DIR="${CURRENT_DIR}/../../"
 BUILD_INFO="${SOURCE_DIR}/build/BUILD_INFO"
-
 VIRTUALENV=$(which virtualenv)
+GRUNTTASK="default"
 
 function opts {
-        TEMP=`getopt -o v:h --long virtualenv:,help -- "$@"`
+        TEMP=`getopt -o v:g:h --long virtualenv:,grunttask:,help -- "$@"`
         eval set -- "$TEMP"
         while true; do
             case "$1" in
+                -g|--grunttask) GRUNTTASK=$2; shift 2 ;;
                 -v|--virtualenv) VIRTUALENV=$2; shift 2 ;;
                 -h|--help) echo 'help under constuction' ; shift 1;;
                 --) shift ; break ;;
@@ -39,4 +40,5 @@ rpmbuild -bb ${CURRENT_DIR}/django.spec \
                    --define "requires $requires" \
                    --define "buildrequires $buildrequires" \
                    --define "wsgi $wsgi" \
-                   --define "virtualenv $VIRTUALENV"
+                   --define "virtualenv ${VIRTUALENV}" \
+                   --define "grunttask ${GRUNTTASK}"
