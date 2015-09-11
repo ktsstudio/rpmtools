@@ -4,11 +4,18 @@ SOURCE_DIR="${CURRENT_DIR}/../.."
 META="python ${CURRENT_DIR}/../meta.py --file ${CURRENT_DIR}/../../package.json --query"
 GRUNTTASK="default"
 
+name=$(${META} name)
+summary=$(${META} name)
+version=$(${META} version)
+release=$(date +%s)
+meta=$(echo ${META})
+
 function opts {
-        TEMP=`getopt -o g:h --long grunttask:,help -- "$@"`
+        TEMP=`getopt -o g:b:h --long grunttask:,build:,help -- "$@"`
         eval set -- "$TEMP"
         while true; do
             case "$1" in
+                -b|--build) release=$2; shift 2 ;;
                 -g|--grunttask) GRUNTTASK=$2; shift 2 ;;
                 -h|--help) echo 'help under constuction' ; shift 1;;
                 --) shift ; break ;;
@@ -17,12 +24,6 @@ function opts {
         done
 }
 opts "$@"
-
-name=$(${META} name)
-summary=$(${META} name)
-version=$(${META} version)
-release=$(date +%s)
-meta=$(echo ${META})
 
 echo "Building $name rpm. Version is $version. Release $release"
 echo "Requires: $requires"

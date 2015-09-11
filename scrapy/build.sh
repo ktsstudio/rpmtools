@@ -5,11 +5,20 @@ META="python ${CURRENT_DIR}/../meta.py --file ${CURRENT_DIR}/../../package.json 
 
 VIRTUALENV=$(which virtualenv)
 
+name=$(${META} name)
+summary=$(${META} name)
+version=$(${META} version)
+release=$(date +%s)
+requires=$(${META} yumDependencies)
+buildrequires="$(${META} yumBuildDependencies) python-argparse"
+meta=$(echo ${META})
+
 function opts {
-        TEMP=`getopt -o v:h --long virtualenv:,help -- "$@"`
+        TEMP=`getopt -o v:b:h --long virtualenv:,build:,help -- "$@"`
         eval set -- "$TEMP"
         while true; do
             case "$1" in
+                -b|--build) release=$2; shift 2 ;;
                 -v|--virtualenv) VIRTUALENV=$2; shift 2 ;;
                 -h|--help) echo 'help under constuction' ; shift 1;;
                 --) shift ; break ;;
@@ -18,15 +27,6 @@ function opts {
         done
 }
 opts "$@"
-
-
-name=$(${META} name)
-summary=$(${META} name)
-version=$(${META} version)
-release=$(date +%s)
-requires=$(${META} yumDependencies)
-buildrequires="$(${META} yumBuildDependencies) python-argparse"
-meta=$(echo ${META})
 
 echo "Building $name rpm. Version is $version. Release $release"
 echo "Requires: $requires"
