@@ -42,9 +42,6 @@ rm -rf %{name}/src/.idea*
 %{name}/env/bin/pip install -r %{name}/src/requirements.txt --upgrade
 %{virtualenv} --relocatable %{name}/env
 
-mkdir -p '%{source}/conf'
-cp '%{source}/build/default.conf' '%{source}/conf/%{name}.conf'
-
 find %{name}/ -type f -name "*.py[co]" -delete
 find %{name}/ -type f -exec sed -i "s:%{_builddir}:%{__prefix}:" {} \;
 
