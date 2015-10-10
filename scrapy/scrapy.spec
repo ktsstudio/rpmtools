@@ -33,9 +33,9 @@ fi
 
 mkdir -p %{name}
 cp -r '%{source}' %{name}/src
-cp -rf %{name}/src/rpmtools/scrapy/run.sh %{name}/src/
+cp -rf %{name}/src/rpmtools/scrapy/scripts/run.sh %{name}/src/
+
 rm -rf %{name}/src/.git*
-rm -rf %{name}/src/rpmtools/.git*
 rm -rf %{name}/src/.idea*
 
 %{virtualenv} --distribute %{name}/env
@@ -48,21 +48,42 @@ find %{name}/ -type f -exec sed -i "s:%{_builddir}:%{__prefix}:" {} \;
 
 %install
 mkdir -p %{buildroot}%{__prefix}/%{name}
+mkdir -p %{buildroot}%{_sysconfdir}/%{name}
+
 mv %{name} %{buildroot}%{__prefix}/
+
+%{__install} -p -D -m 0755 %{buildroot}%{__prefix}/%{name}/src/rpmtools/scrapy/scripts/init.sh %{buildroot}%{_initrddir}/%{name}
+%{__install} -p -D -m 0644 %{buildroot}%{__prefix}/%{name}/src/rpmtools/scrapy/conf/supervisord.conf %{buildroot}%{_sysconfdir}/%{name}/supervisord.conf
+sed -i 's/#NAME#/%{name}/g' %{buildroot}%{_sysconfdir}/%{name}/supervisord.conf
+
 
 # hack for lib64
 [ -d %{buildroot}%{__prefix}/%{name}/env/lib64 ] && rm -rf %{buildroot}%{__prefix}/%{name}/env/lib64 && ln -sf %{__prefix}/%{name}/env/lib %{buildroot}%{__prefix}/%{name}/env/lib64
-
-rm -rf %{buildroot}%{__prefix}/%{name}/src/rpmtools
 rm -rf %{buildroot}%{__prefix}/%{name}/src/env
+rm -rf %{name}/src/rpmtools
+
+mkdir -p %{buildroot}/var/run/%{name}
 
 %post
+mkdir -p /var/log/%{name}
+touch /var/log/%{name}/%{name}.log
+chown -R %{name}:%{name} /var/log/%{name}
+
+ln -fs %{__prefix}/%{name}/src/run.sh /usr/bin/%{name}
+chmod a+x /usr/bin/%{name}
+chmod a+x %{__prefix}/%{name}/src/run.sh
 
 %preun
+%postun
+rm -rf /usr/bin/%{name}
 
 %clean
 rm -rf %{buildroot}
 
 %files
 %defattr(-,root,root)
+%{_initrddir}/%{name}
 %{__prefix}/%{name}/
+%config(noreplace) %{_sysconfdir}/%{name}/supervisord.conf
+%defattr(-,%{name},%{name})
+/var/run/%{name}
