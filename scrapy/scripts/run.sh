@@ -46,5 +46,3 @@ do
     rm -rf /var/run/${NAME}/scrapy.lock
 done
 log "Scrapy end"
-
-return 0
