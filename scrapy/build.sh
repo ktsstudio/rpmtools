@@ -3,7 +3,14 @@ CURRENT_DIR=$(cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd)
 SOURCE_DIR="${CURRENT_DIR}/../../"
 META="python ${CURRENT_DIR}/../meta.py --file ${CURRENT_DIR}/../../package.json --query"
 
-VIRTUALENV=$(which virtualenv)
+rpm -q python-argparse > /dev/null 2>&1
+if [ $? -ne 0 ];
+then
+	echo 'Package python-argparse no installed, abort'
+	exit 1
+fi
+
+VIRTUALENV=$(which virtualenv 2>/dev/null)
 
 name=$(${META} name)
 summary=$(${META} name)
