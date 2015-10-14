@@ -65,7 +65,8 @@ rm -rf %{buildroot}%{__prefix}/%{name}/src/rpmtools
 mkdir -p %{buildroot}/var/run/%{name}
 
 %post
-ln -fs %{__prefix}/%{name}/src/run.sh /usr/bin/%{name}
+echo 'Add symlink'
+ln -sf %{__prefix}/%{name}/src/run.sh /usr/bin/%{name}
 chmod a+x /usr/bin/%{name}
 chmod a+x %{__prefix}/%{name}/src/run.sh
 
@@ -84,10 +85,8 @@ fi
 %preun
 if [ $1 -eq 0 ]; then
     /sbin/chkconfig --del %{name}
+    rm -rf /usr/bin/%{name}
 fi
-
-%postun
-rm -rf /usr/bin/%{name}
 
 %clean
 rm -rf %{buildroot}
