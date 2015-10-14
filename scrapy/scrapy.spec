@@ -34,7 +34,7 @@ fi
 mkdir -p %{name}
 cp -r '%{source}' %{name}/src
 cp -rf %{name}/src/rpmtools/scrapy/scripts/run.sh %{name}/src/
-
+#cp -rf %{name}/src/rpmtools/scrapy/scripts/rund.sh %{name}/src/
 rm -rf %{name}/src/.git*
 rm -rf %{name}/src/.idea*
 
@@ -60,20 +60,32 @@ sed -i 's/#NAME#/%{name}/g' %{buildroot}%{_sysconfdir}/%{name}/supervisord.conf
 # hack for lib64
 [ -d %{buildroot}%{__prefix}/%{name}/env/lib64 ] && rm -rf %{buildroot}%{__prefix}/%{name}/env/lib64 && ln -sf %{__prefix}/%{name}/env/lib %{buildroot}%{__prefix}/%{name}/env/lib64
 rm -rf %{buildroot}%{__prefix}/%{name}/src/env
-rm -rf %{name}/src/rpmtools
+rm -rf %{buildroot}%{__prefix}/%{name}/src/rpmtools
 
 mkdir -p %{buildroot}/var/run/%{name}
 
 %post
-mkdir -p /var/log/%{name}
-touch /var/log/%{name}/%{name}.log
-chown -R %{name}:%{name} /var/log/%{name}
-
 ln -fs %{__prefix}/%{name}/src/run.sh /usr/bin/%{name}
 chmod a+x /usr/bin/%{name}
 chmod a+x %{__prefix}/%{name}/src/run.sh
 
+if [ $1 -gt 1 ]; then
+    echo "Upgrade"
+else
+    echo "Install"
+    /sbin/chkconfig --list %{name} > /dev/null 2>&1 || /sbin/chkconfig --add %{name}
+    /sbin/chkconfig %{name} on
+
+    mkdir -p /var/log/%{name}
+    touch /var/log/%{name}/%{name}.log
+    chown -R %{name}:%{name} /var/log/%{name}
+fi
+
 %preun
+if [ $1 -eq 0 ]; then
+    /sbin/chkconfig --del %{name}
+fi
+
 %postun
 rm -rf /usr/bin/%{name}
 

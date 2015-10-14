@@ -37,12 +37,16 @@ done
 log "Scrapy start"
 SPIDERS=$(${SCRAPY} list)
 log "Scrapy list: ${SPIDERS}"
+
+touch /var/run/${NAME}/scrapy.lock
 for SPIDER in $SPIDERS
 do
     log "Scrapy start crawl: ${SPIDER}"
-    touch /var/run/${NAME}/scrapy.lock
-    ${SCRAPY} crawl ${SPIDER}
+    ${SCRAPY} crawl ${SPIDER} -L INFO
     log "Scrapy stop crawl: ${SPIDER}"
-    rm -rf /var/run/${NAME}/scrapy.lock
 done
+rm -rf /var/run/${NAME}/scrapy.lock
+
 log "Scrapy end"
+
+return 0
