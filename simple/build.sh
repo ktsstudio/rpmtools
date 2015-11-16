@@ -29,7 +29,7 @@ echo "Building $name rpm. Version is $version. Release $release"
 echo "Requires: $requires"
 echo "Build requires: $buildrequires"
 
-rpmbuild -bb ${CURRENT_DIR}/backbone.spec \
+rpmbuild -bb ${CURRENT_DIR}/simple.spec \
                    --define "name $name" \
                    --define "version $version" \
                    --define "release $release" \
