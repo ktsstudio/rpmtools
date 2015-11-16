@@ -29,12 +29,34 @@ cd %{name}
 
 if [ -e "package.json" ]
 then
-    npm install || exit 1
+    HASH=$(md5sum package.json | awk '{ print $1 }')
+    CACHED_NODE_MODULES="/tmp/node_modules_${HASH}.tar"
+    if [ -e "${CACHED_NODE_MODULES}" ]
+    then
+      echo "Found cached node_modules: ${CACHED_NODE_MODULES}, use it"
+      tar xf ${CACHED_NODE_MODULES} ./
+    else
+      echo "No found cached node_modules, download..."
+      npm install --verbose || exit 1
+      echo "Save node_modules into cache: ${CACHED_NODE_MODULES}"
+      tar cf ${CACHED_NODE_MODULES} ./node_modules
+    fi
 fi
 
 if [ -e "bower.json" ]
 then
-    bower install --allow-root || exit 1
+    HASH=$(md5sum bower.json | awk '{ print $1 }')
+    CACHED_BOWER_COMPONENTS="/tmp/bower_components_${HASH}.tar"
+    if [ -e "${CACHED_BOWER_COMPONENTS}" ]
+    then
+      echo "Found cached bower_components: ${CACHED_BOWER_COMPONENTS}, use it"
+      tar xf ${CACHED_BOWER_COMPONENTS} ./
+    else
+      echo "No found cached bower_components, download..."
+      bower install --allow-root || exit 1
+      echo "Save bower_components into cache: ${CACHED_BOWER_COMPONENTS}"
+      tar cf ${CACHED_BOWER_COMPONENTS} ./bower_components
+    fi
 fi
 
 if [ -e "Gruntfile.js" ]
