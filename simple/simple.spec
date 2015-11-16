@@ -37,7 +37,7 @@ then
       tar xf ${CACHED_NODE_MODULES} ./
     else
       echo "No found cached node_modules, download..."
-      npm install --verbose || exit 1
+      npm install || exit 1
       echo "Save node_modules into cache: ${CACHED_NODE_MODULES}"
       tar cf ${CACHED_NODE_MODULES} ./node_modules || true
     fi
