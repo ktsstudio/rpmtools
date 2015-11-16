@@ -1,5 +1,6 @@
 #!/bin/sh
-prog="$(basename $0)"
+name="$(basename $0)"
+supervisor_path="#SUPERVISOR_PATH#"
 # chkconfig: - 85 15
 # processname: $prog
 # config: /etc/$prog/$prog.conf
@@ -8,23 +9,23 @@ prog="$(basename $0)"
 
 . /etc/rc.d/init.d/functions
 
-[ -f "/etc/sysconfig/${prog}" ] && . /etc/sysconfig/${prog}
+[ -f "/etc/sysconfig/${name}" ] && . /etc/sysconfig/${name}
 
 RETVAL=0
-pidfile="/var/run/${prog}/supervisord.pid"
+pidfile="/var/run/${name}/supervisord.pid"
 
 status() {
-    /opt/${prog}/env/bin/supervisorctl --configuration=/etc/${prog}/supervisord.conf status
+    ${supervisor_path}/supervisorctl --configuration=/etc/${name}/supervisord.conf status
 }
 
 start() {
-    echo -n "Starting ${prog}: "
+    echo -n "Starting ${name}: "
 
-    if [ -f "/var/run/${prog}/supervisord.pid" ]
+    if [ -f "/var/run/${name}/supervisord.pid" ]
     then
-        echo "${prog} seems to be running"
+        echo "${name} seems to be running"
     else
-        /opt/${prog}/env/bin/supervisord --configuration=/etc/${prog}/supervisord.conf
+        ${supervisor_path}/supervisord --configuration=/etc/${name}/supervisord.conf
     fi
     RETVAL=$?
     echo
@@ -34,10 +35,10 @@ start() {
 }
 
 stop() {
-    echo -n "Stopping $prog: "
-    /opt/${prog}/env/bin/supervisorctl --configuration=/etc/${prog}/supervisord.conf stop ${prog} all
-    /opt/${prog}/env/bin/supervisorctl --configuration=/etc/${prog}/supervisord.conf shutdown
-    [ -f "/var/run/${prog}/supervisord.pid" ] && rm -f `cat /var/run/${prog}/supervisord.pid`
+    echo -n "Stopping $name: "
+    ${supervisor_path}/supervisorctl --configuration=/etc/${name}/supervisord.conf stop ${name} all
+    ${supervisor_path}/supervisorctl --configuration=/etc/${name}/supervisord.conf shutdown
+    [ -f "/var/run/${name}/supervisord.pid" ] && rm -f `cat /var/run/${name}/supervisord.pid`
     RETVAL=$?
     [ $RETVAL = 0 ] && { success; }
     echo
