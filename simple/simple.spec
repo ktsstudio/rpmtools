@@ -39,7 +39,7 @@ then
       echo "No found cached node_modules, download..."
       npm install --verbose || exit 1
       echo "Save node_modules into cache: ${CACHED_NODE_MODULES}"
-      tar cf ${CACHED_NODE_MODULES} ./node_modules
+      tar cf ${CACHED_NODE_MODULES} ./node_modules || true
     fi
 fi
 
@@ -55,7 +55,7 @@ then
       echo "No found cached bower_components, download..."
       bower install --allow-root || exit 1
       echo "Save bower_components into cache: ${CACHED_BOWER_COMPONENTS}"
-      tar cf ${CACHED_BOWER_COMPONENTS} ./bower_components
+      tar cf ${CACHED_BOWER_COMPONENTS} ./bower_components || true
     fi
 fi
 
