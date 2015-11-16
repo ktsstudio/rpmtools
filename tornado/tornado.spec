@@ -58,8 +58,9 @@ mv %{name} %{buildroot}%{__prefix}/
 mkdir -p %{buildroot}%{_sysconfdir}/%{name}
 %{__install} -p -D -m 0644 %{buildroot}%{__prefix}/%{name}/src/build/default.conf %{buildroot}%{_sysconfdir}/%{name}/%{name}.conf
 %{__install} -p -D -m 0644 %{buildroot}%{__prefix}/%{name}/src/rpmtools/tornado/conf/supervisord.conf %{buildroot}%{_sysconfdir}/%{name}/supervisord.conf
-sed -i 's/#NAME#/%{name}/g' %{buildroot}%{_sysconfdir}/%{name}/supervisord.conf
 
+sed -i 's/#NAME#/%{name}/g' %{buildroot}%{_sysconfdir}/%{name}/supervisord.conf
+sed -i "s/#SUPERVISOR_PATH#/$(echo '%{supervisor}' | sed 's/\//\\\//g')/g" %{buildroot}%{_initrddir}/%{name}
 
 rm -rf %{buildroot}%{__prefix}/%{name}/src/rpmtools
 rm -rf %{buildroot}%{__prefix}/%{name}/src/env
