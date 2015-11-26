@@ -54,8 +54,13 @@ then
     else
       echo "No found cached bower_components, download..."
       bower install --allow-root || exit 1
-      echo "Save bower_components into cache: ${CACHED_BOWER_COMPONENTS}"
-      tar cf ${CACHED_BOWER_COMPONENTS} ./bower_components || true
+      if [ -e "./bower_components" ]
+      then
+        echo "Save bower_components into cache: ${CACHED_BOWER_COMPONENTS}"
+        tar cf ${CACHED_BOWER_COMPONENTS} ./bower_components || true
+      else
+        echo "bower_components not found, not save"
+      fi
     fi
 fi
 
