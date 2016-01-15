@@ -1,6 +1,6 @@
 #!/bin/sh
 name="$(basename $0)"
-supervisor_path="#SUPERVISOR_PATH#"
+supervisor_path="/opt/supervisor/bin/"
 # chkconfig: - 85 15
 # processname: $prog
 # config: /etc/$prog/$prog.conf
