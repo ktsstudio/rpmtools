@@ -29,7 +29,7 @@ cd %{name}
 
 if [ -e "package.json" ]
 then
-    HASH=$(md5sum package.json | awk '{ print $1 }')
+    HASH=$(cat package.json | grep -v 'version' | md5sum | awk '{ print $1 }')
     CACHED_NODE_MODULES="/tmp/node_modules_${HASH}.tar"
     if [ -e "${CACHED_NODE_MODULES}" ]
     then
@@ -45,7 +45,7 @@ fi
 
 if [ -e "bower.json" ]
 then
-    HASH=$(md5sum bower.json | awk '{ print $1 }')
+    HASH=$(cat bower.json | grep -v 'version' | md5sum | awk '{ print $1 }')
     CACHED_BOWER_COMPONENTS="/tmp/bower_components_${HASH}.tar"
     if [ -e "${CACHED_BOWER_COMPONENTS}" ]
     then
