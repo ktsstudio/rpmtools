@@ -109,13 +109,14 @@ pushd %{name}/src
     then
         grunt $(%{meta} grunt_task) || exit 1
     fi
+popd
 
+pushd %{name}/src
     for i in $(%{meta} excludeFiles); do
         echo "Remove files: ${i}"
         rm -rf ${i}
     done
 popd
-
 
 %install
 mkdir -p %{buildroot}%{__prefix}/%{name}
