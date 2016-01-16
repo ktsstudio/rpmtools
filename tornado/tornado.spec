@@ -60,6 +60,63 @@ fi
 find %{name}/ -type f -name "*.py[co]" -delete
 find %{name}/ -type f -exec sed -i "s:%{_builddir}:%{__prefix}:" {} \;
 
+
+pushd %{name}/src
+    gruntCwd=$(%{meta} gruntCwd)
+    if [ $gruntCwd != '' ]
+    then
+        cd $gruntCwd
+    fi
+
+    if [ -e "package.json" ]
+    then
+        HASH=$(cat package.json | grep -v 'version' | md5sum | awk '{ print $1 }')
+        CACHED_NODE_MODULES="/tmp/node_modules_${HASH}.tar"
+        if [ -e "${CACHED_NODE_MODULES}" ]
+        then
+          echo "Found cached node_modules: ${CACHED_NODE_MODULES}, use it"
+          tar xf ${CACHED_NODE_MODULES} ./
+        else
+          echo "No found cached node_modules, download..."
+          npm install || exit 1
+          echo "Save node_modules into cache: ${CACHED_NODE_MODULES}"
+          tar cf ${CACHED_NODE_MODULES} ./node_modules || true
+        fi
+    fi
+
+    if [ -e "bower.json" ]
+    then
+        HASH=$(cat bower.json | grep -v 'version' | md5sum | awk '{ print $1 }')
+        CACHED_BOWER_COMPONENTS="/tmp/bower_components_${HASH}.tar"
+        if [ -e "${CACHED_BOWER_COMPONENTS}" ]
+        then
+          echo "Found cached bower_components: ${CACHED_BOWER_COMPONENTS}, use it"
+          tar xf ${CACHED_BOWER_COMPONENTS} ./
+        else
+          echo "No found cached bower_components, download..."
+          bower install --allow-root || exit 1
+          if [ -e "./bower_components" ]
+          then
+            echo "Save bower_components into cache: ${CACHED_BOWER_COMPONENTS}"
+            tar cf ${CACHED_BOWER_COMPONENTS} ./bower_components || true
+          else
+            echo "bower_components not found, not save"
+          fi
+        fi
+    fi
+
+    if [ -e "Gruntfile.js" ]
+    then
+        grunt $(%{meta} grunt_task) || exit 1
+    fi
+
+    for i in $(%{meta} excludeFiles); do
+        echo "Remove files: ${i}"
+        rm -rf ${i}
+    done
+popd
+
+
 %install
 mkdir -p %{buildroot}%{__prefix}/%{name}
 mv %{name} %{buildroot}%{__prefix}/
