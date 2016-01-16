@@ -1,14 +1,15 @@
 #!/bin/bash
 CURRENT_DIR=$(cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd)
 SOURCE_DIR="${CURRENT_DIR}/../../"
-BUILD_INFO="${SOURCE_DIR}/build/BUILD_INFO"
+META="python ${CURRENT_DIR}/../meta.py --file ${SOURCE_DIR}/build/package.json --query"
 
-version=$(sed '1q;d' ${BUILD_INFO})
+name=$(${META} name)
+version=$(${META} version)
 release=$(date +%s)
-name=$(sed '2q;d' ${BUILD_INFO})
-summary=$(sed '3q;d' ${BUILD_INFO})
-requires=$(sed '4q;d' ${BUILD_INFO})
-buildrequires=$(sed '5q;d' ${BUILD_INFO})
+summary=$(${META} description)
+requires=$(${META} yumDependencies)
+buildrequires="$(${META} yumBuildDependencies) python-argparse"
+meta=$(echo ${META})
 
 VIRTUALENV=$(which virtualenv)
 
@@ -39,4 +40,5 @@ rpmbuild -bb ${CURRENT_DIR}/tornado.spec \
                    --define "summary $summary" \
                    --define "requires $requires" \
                    --define "buildrequires $buildrequires" \
-                   --define "virtualenv $VIRTUALENV"
+                   --define "virtualenv $VIRTUALENV" \
+                   --define "meta $meta"
