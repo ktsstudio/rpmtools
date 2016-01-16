@@ -66,7 +66,23 @@ Under construction
 
 * -b --build - номер релиза. По-умолчанию текущий timestamp
 * -v --virtualenv - путь до virtualenv, с которым будет произведена сборка. По-умолчанию вывод команды ```which virtualenv``` 
-* -s --supervisor - путь до папки, в которой установлены supervisord и supervisorctl. По-умолчанию /opt/<имя пакета>/env/bin. Полезна для проектов, работающих под Python 3 для использования внешнего супервизора 
+
+##### Параметры package.json
+
+* name - имя проекта
+* version - версия проекта
+* description - описание проекта
+* yumDependencies — зависимости
+* yumBuildDependencies - зависимости сборки
+* gruntCwd - переход в директорию с grunt-скриптом (опционально)
+* excludeFiles — файлы, которые не нужно помещать в пакет (опционально)
+ 
+##### Сборка
+
+1. Создать в корне проекта папку build, в ней создать package.json. Указать name, version, yumDependencies (массив), yumBuildDependencies (массив)
+2. Запустить из корня проекта ./rpmbuild/tornado/build.sh
+3. После установки пакета в конфиге по-умолчанию /etc/<имя пакета>/supervisord.conf необходимо указать имя scrapy-проекта для запуска
+
 
 ### Yii
 
