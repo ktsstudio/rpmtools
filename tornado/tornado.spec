@@ -37,10 +37,25 @@ rm -rf %{name}/src/.git*
 rm -rf %{name}/src/rpmtools/.git*
 rm -rf %{name}/src/.idea*
 
-%{virtualenv} --distribute %{name}/env
-%{name}/env/bin/easy_install -U distribute
-%{name}/env/bin/pip install -r %{name}/src/requirements.txt --upgrade
-%{virtualenv} --relocatable %{name}/env
+
+HASH=$(echo "$(cat %{name}/src/requirements.txt)%{virtualenv}" | md5sum | awk '{ print $1 }')
+CACHED_VIRTUALENV="/tmp/virtualenv_${HASH}.tar"
+if [ -e "${CACHED_VIRTUALENV}" ]
+then
+  echo "Found cached virtualenv: ${CACHED_VIRTUALENV}, use it"
+  tar xf ${CACHED_VIRTUALENV} %{name}
+else
+  echo "No found cached virtualenv, download..."
+
+  %{virtualenv} --distribute %{name}/env
+  %{name}/env/bin/easy_install -U distribute
+  %{name}/env/bin/pip install -r %{name}/src/requirements.txt --upgrade
+  %{virtualenv} --relocatable %{name}/env
+
+  echo "Save virtualenv into cache: ${CACHED_VIRTUALENV}"
+  tar cf ${CACHED_VIRTUALENV} %{name}/env || true
+fi
+
 
 find %{name}/ -type f -name "*.py[co]" -delete
 find %{name}/ -type f -exec sed -i "s:%{_builddir}:%{__prefix}:" {} \;
