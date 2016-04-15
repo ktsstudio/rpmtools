@@ -22,14 +22,14 @@ pidfile="/var/run/${name}/${prog}.pid"
 lockfile="/var/lock/subsys/${prog}"
 
 bin="/usr/bin/${name}"
-opts="-EB --pidfile=${pidfile} -c 5 -l INFO --logfile=/var/log/${name}/celeryd.log --uid=$(id -u ${name}) --gid=$(id -g ${name}) --workdir=/opt/${name}/src"
+opts="-A application worker -EB --pidfile=${pidfile} -c 5 -l INFO --logfile=/var/log/${name}/celeryd.log --uid=$(id -u ${name}) --gid=$(id -g ${name}) --workdir=/opt/${name}/src"
 
 RETVAL=0
 
 
 start() {
 	echo -n $"Starting $prog: "
-	${bin} celeryd_detach ${opts}
+	${bin} celeryd ${opts}
 	RETVAL=$?
 	[ $RETVAL = 0 ] && { touch ${lockfile}; success; }
     echo
@@ -38,7 +38,7 @@ start() {
 
 stop() {
 	echo -n $"Stopping $prog: "
-	${bin} celeryd_multi stopwait celery --pidfile=${pidfile}
+	${bin} celeryd-multi stopwait celery --pidfile=${pidfile}
 	RETVAL=$?
 	echo
 	[ $RETVAL = 0 ] && rm -f ${lockfile} ${pidfile}
@@ -46,7 +46,7 @@ stop() {
 
 restart() {
     echo -n $"Restarting $prog; "
-    ${bin} celeryd_multi restart celery ${opts}
+    ${bin} celeryd-multi restart celery ${opts}
 	RETVAL=$?
 	return $RETVAL
 }
