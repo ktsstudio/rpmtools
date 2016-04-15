@@ -39,14 +39,22 @@ rm -rf %{name}/src/.idea*
 
 [ ! -f %{name}/src/wsgi.py ] && cp %{name}/src/rpmtools/django/wsgi.py %{name}/src/wsgi.py
 
-if [ -d '%{source}/env' ]; then
-    %{virtualenv} --relocatable '%{source}/env'
-    cp -r '%{source}/env' %{name}/env
+HASH=$(echo "$(cat %{name}/src/requirements.txt)%{virtualenv}" | md5sum | awk '{ print $1 }')
+CACHED_VIRTUALENV="/tmp/virtualenv_${HASH}.tar"
+if [ -e "${CACHED_VIRTUALENV}" ]
+then
+  echo "Found cached virtualenv: ${CACHED_VIRTUALENV}, use it"
+  tar xf ${CACHED_VIRTUALENV} %{name}
 else
-    %{virtualenv} --distribute %{name}/env
-    %{name}/env/bin/easy_install -U distribute
-    %{name}/env/bin/pip install -r %{name}/src/requirements.txt --upgrade
-    %{virtualenv} --relocatable %{name}/env
+  echo "No found cached virtualenv, download..."
+
+  %{virtualenv} --distribute %{name}/env
+  %{name}/env/bin/easy_install -U distribute
+  %{name}/env/bin/pip install -r %{name}/src/requirements.txt --upgrade
+  %{virtualenv} --relocatable %{name}/env
+
+  echo "Save virtualenv into cache: ${CACHED_VIRTUALENV}"
+  tar cf ${CACHED_VIRTUALENV} %{name}/env || true
 fi
 
 mkdir -p '%{source}/conf'
@@ -57,11 +65,24 @@ pushd '%{name}/src'
     then
         bower install --allow-root || exit 1
     fi
+
     if [ -e "package.json" ]
     then
-        npm install || exit 1
+        HASH=$(cat package.json | grep -v 'version' | md5sum | awk '{ print $1 }')
+        CACHED_NODE_MODULES="/tmp/node_modules_${HASH}.tar"
+        if [ -e "${CACHED_NODE_MODULES}" ]
+        then
+          echo "Found cached node_modules: ${CACHED_NODE_MODULES}, use it"
+          tar xf ${CACHED_NODE_MODULES} ./
+        else
+          echo "No found cached node_modules, download..."
+          npm install || exit 1
+          echo "Save node_modules into cache: ${CACHED_NODE_MODULES}"
+          tar cf ${CACHED_NODE_MODULES} ./node_modules || true
+        fi
     fi
 popd
+
 %{name}/env/bin/python '%{name}/src/manage.py' collectstatic --noinput
 pushd '%{name}/src'
     if [ -e "Gruntfile.js" ]
