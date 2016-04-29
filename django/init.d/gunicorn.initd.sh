@@ -20,7 +20,7 @@ prog="$(basename $0)"
 
 pidfile="/var/run/${prog}.pid"
 lockfile="/var/lock/subsys/${prog}"
-
+export LANG=ru_RU.UTF-8
 RETVAL=0
 
 start() {

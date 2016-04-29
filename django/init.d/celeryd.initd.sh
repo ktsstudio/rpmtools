@@ -1,6 +1,5 @@
 #!/bin/sh
 name="PROJECT_NAME"
-
 # celeryd startup script
 #
 # chkconfig: - 85 15
@@ -21,24 +20,25 @@ prog="$(basename $0)"
 pidfile="/var/run/${name}/${prog}.pid"
 lockfile="/var/lock/subsys/${prog}"
 
+source /opt/${name}/env/bin/activate
 bin="/usr/bin/${name}"
-opts="-A application worker -EB --pidfile=${pidfile} -c 5 -l INFO --logfile=/var/log/${name}/celeryd.log --uid=$(id -u ${name}) --gid=$(id -g ${name}) --workdir=/opt/${name}/src"
+opts="multi start worker -A application -EB --pidfile=${pidfile} -c 5 -l INFO --logfile=/var/log/${name}/celeryd.log --uid=$(id -u ${name}) --gid=$(id -g ${name}) --workdir=/opt/${name}/src"
 
 RETVAL=0
 
 
 start() {
 	echo -n $"Starting $prog: "
-	${bin} celeryd ${opts}
+	celery ${opts}
 	RETVAL=$?
 	[ $RETVAL = 0 ] && { touch ${lockfile}; success; }
-    echo
+        echo
 	return $RETVAL
 }
 
 stop() {
 	echo -n $"Stopping $prog: "
-	${bin} celeryd-multi stopwait celery --pidfile=${pidfile}
+	celery multi stopwait worker --pidfile=${pidfile}
 	RETVAL=$?
 	echo
 	[ $RETVAL = 0 ] && rm -f ${lockfile} ${pidfile}
@@ -46,7 +46,7 @@ stop() {
 
 restart() {
     echo -n $"Restarting $prog; "
-    ${bin} celeryd-multi restart celery ${opts}
+    celery multi restart worker ${opts}
 	RETVAL=$?
 	return $RETVAL
 }
