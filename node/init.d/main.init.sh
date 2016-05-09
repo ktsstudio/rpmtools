@@ -19,15 +19,15 @@ SCRIPT=/opt/${name}/src/bin/www
 mkdir -p /var/run/${name}
 
 start() {
-        forever start -c "node --harmony" -l /var/log/${name}/forever.log -o /var/log/${name}/std.out -e /var/log/${name}/std.err --pidFile /var/run/${name}/${name}.pid  ${SCRIPT}
+        forever start -c "node --harmony" -a -l /var/log/${name}/forever.log -o /var/log/${name}/std.out -e /var/log/${name}/std.err --pidFile /var/run/${name}/${name}.pid  ${SCRIPT}
 }
 
 stop() {
-        forever stop -c "node --harmony" -l /var/log/${name}/forever.log --pidFile /var/run/${name}/${name}.pid ${SCRIPT}
+        forever stop -c "node --harmony" -a -l /var/log/${name}/forever.log --pidFile /var/run/${name}/${name}.pid ${SCRIPT}
 }
 
 restart() {
-        forever restart -c "node --harmony" -l /var/log/${name}/forever.log --pidFile /var/run/${name}/${name}.pid ${SCRIPT}
+        forever restart -c "node --harmony" -a -l /var/log/${name}/forever.log --pidFile /var/run/${name}/${name}.pid ${SCRIPT}
 }
 
 case "$1" in
