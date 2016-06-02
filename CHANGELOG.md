@@ -1,3 +1,6 @@
+3.1
+* Simple, Tornado: добавлена поддержка versionsuffix
+
 2.0.0
 
 * Ведение CHANGELOG
