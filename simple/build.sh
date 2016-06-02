@@ -5,19 +5,19 @@ META="python ${CURRENT_DIR}/../meta.py --file ${CURRENT_DIR}/../../package.json 
 GRUNTTASK="default"
 
 name=$(${META} name)
-namesuffix=""
+versionsuffix=""
 summary=$(${META} name)
 version=$(${META} version)
 release=$(date +%s)
 meta=$(echo ${META})
 
 function opts {
-        TEMP=`getopt -o g:n:b:h --long grunttask:,namesuffix:,build:,help -- "$@"`
+        TEMP=`getopt -o g:s:b:h --long grunttask:,versionsuffix:,build:,help -- "$@"`
         eval set -- "$TEMP"
         while true; do
             case "$1" in
                 -b|--build) release=$2; shift 2 ;;
-                -n|--namesuffix) namesuffix=$2; shift 2 ;;
+                -s|--versionsuffix) versionsuffix=$2; shift 2 ;;
                 -g|--grunttask) GRUNTTASK=$2; shift 2 ;;
                 -h|--help) echo 'help under constuction' ; shift 1;;
                 --) shift ; break ;;
@@ -32,8 +32,8 @@ echo "Requires: $requires"
 echo "Build requires: $buildrequires"
 
 rpmbuild -bb ${CURRENT_DIR}/simple.spec \
-                   --define "name $name$namesuffix" \
-                   --define "version $version" \
+                   --define "name $name" \
+                   --define "version $version$versionsuffix" \
                    --define "release $release" \
                    --define "source ${SOURCE_DIR}" \
                    --define "summary $summary" \
