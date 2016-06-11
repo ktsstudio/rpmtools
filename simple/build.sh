@@ -3,6 +3,8 @@ CURRENT_DIR=$(cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd)
 SOURCE_DIR="${CURRENT_DIR}/../.."
 META="python ${CURRENT_DIR}/../meta.py --file ${CURRENT_DIR}/../../package.json --query"
 GRUNTTASK="default"
+COMMAND=""
+PUBLIC_DIR_NAME="public"
 
 name=$(${META} name)
 versionsuffix=""
@@ -19,6 +21,8 @@ function opts {
                 -b|--build) release=$2; shift 2 ;;
                 -s|--versionsuffix) versionsuffix=$2; shift 2 ;;
                 -g|--grunttask) GRUNTTASK=$2; shift 2 ;;
+                -c|--command) COMMAND=$2; shift 2 ;;
+                -p|--public) PUBLIC_DIR_NAME=$2; shift 2 ;;
                 -h|--help) echo 'help under constuction' ; shift 1;;
                 --) shift ; break ;;
                 *) echo "Internal parsing error!: $1" ; exit 1 ;;
@@ -38,4 +42,6 @@ rpmbuild -bb ${CURRENT_DIR}/simple.spec \
                    --define "source ${SOURCE_DIR}" \
                    --define "summary $summary" \
                    --define "meta $meta" \
-                   --define "grunttask ${GRUNTTASK}"
+                   --define "grunttask ${GRUNTTASK}" \
+                   --define "command ${COMMAND}" \
+                   --define "public ${PUBLIC_DIR_NAME}"

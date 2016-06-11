@@ -69,9 +69,11 @@ then
     grunt %{grunttask} || exit 1
 fi
 
+%{?command}
+
 %install
 mkdir -p %{buildroot}%{__prefix}/
-mv %{name}/public %{buildroot}%{__prefix}/%{name}
+mv %{name}/%{public} %{buildroot}%{__prefix}/%{name}
 
 
 %post
