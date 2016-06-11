@@ -3,7 +3,7 @@ CURRENT_DIR=$(cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd)
 SOURCE_DIR="${CURRENT_DIR}/../.."
 META="python ${CURRENT_DIR}/../meta.py --file ${CURRENT_DIR}/../../package.json --query"
 GRUNTTASK="default"
-COMMAND=""
+COMMAND="exit 0"
 PUBLIC_DIR_NAME="public"
 
 name=$(${META} name)

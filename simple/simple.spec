@@ -70,7 +70,7 @@ then
 fi
 
 %if %{?command:1}%{!?command:0}
-  %{command} || exit 1
+  /bin/sh -c '%{command}' || exit 1
 %endif
 
 %install
