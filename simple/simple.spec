@@ -69,7 +69,9 @@ then
     grunt %{grunttask} || exit 1
 fi
 
-%{?command}
+%if %{?command:1}%{!?command:0}
+  %{command} || exit 1
+%endif
 
 %install
 mkdir -p %{buildroot}%{__prefix}/
