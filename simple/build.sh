@@ -14,7 +14,7 @@ release=$(date +%s)
 meta=$(echo ${META})
 
 function opts {
-        TEMP=`getopt -o g:s:b:h --long grunttask:,versionsuffix:,build:,help -- "$@"`
+        TEMP=`getopt -o g:s:b:h:c:p --long grunttask:,versionsuffix:,build:,command:,public:,help -- "$@"`
         eval set -- "$TEMP"
         while true; do
             case "$1" in
@@ -34,6 +34,7 @@ opts "$@"
 echo "Building $name rpm. Version is $version. Release $release"
 echo "Requires: $requires"
 echo "Build requires: $buildrequires"
+echo "Public dirname: $PUBLIC_DIR_NAME"
 
 rpmbuild -bb ${CURRENT_DIR}/simple.spec \
                    --define "name $name" \
