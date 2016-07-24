@@ -76,13 +76,13 @@ Under construction
 * yumBuildDependencies - зависимости сборки
 * gruntCwd - переход в директорию с grunt-скриптом (опционально)
 * excludeFiles — файлы, которые не нужно помещать в пакет (опционально)
+* virtualenv — путь до virtualenv и ключи запуска (опционально)
  
 ##### Сборка
 
 1. Создать в корне проекта папку build, в ней создать package.json. Указать name, version, yumDependencies (массив), yumBuildDependencies (массив)
 2. Запустить из корня проекта ./rpmbuild/tornado/build.sh
-3. После установки пакета в конфиге по-умолчанию /etc/<имя пакета>/supervisord.conf необходимо указать имя scrapy-проекта для запуска
-
+3. После установки пакета в конфиге по-умолчанию /etc/<имя пакета>/supervisord.conf необходимо скорректировать номер процесса
 
 ### Yii
 

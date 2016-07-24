@@ -29,9 +29,14 @@ function opts {
 }
 opts "$@"
 
-echo "Building $name rpm. Version is $version. Release $release"
+cat ${CURRENT_DIR}/../logo.txt
+
+echo
+echo
+echo "Building $name rpm, version $version, release $release"
 echo "Requires: $requires"
 echo "Build requires: $buildrequires"
+echo
 
 rpmbuild -bb ${CURRENT_DIR}/django.spec \
                    --define "name $name" \

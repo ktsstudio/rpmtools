@@ -1,5 +1,34 @@
-3.1
+3.3.0
+* Tornado: изменена структура конфигов по-умолчанию для supervisor. Теперь существует папка /etc/%{name}/programs, в
+которой либо дефолтный конфиг простого приложения, либо конфиги из build/programs. /etc/%{name}/supervisor.conf инклюдит 
+конфиги из /etc/%{name}/programs
+* Tornado: поддержка Centos 7 (systemd)
+* Tornado: пусть до virtualenv и его ключи можно задавать из build/package.json
+
+3.2.0
+
+* Simple: выполнение кастомной команды после сборки
+* Yii: кеширование node_modules, bower_components
+
+3.1, 3.1.1, 3.1.2
+
 * Simple, Tornado: добавлена поддержка versionsuffix
+
+3.0.1
+
+* NodeJS: исправления в init.d скриптах
+
+3.0.0
+
+* NodeJS: новая технология
+
+2.1.1, 2.1.2
+
+* Django: исправлен init.d скрипт для новой celery
+
+2.1.0
+
+* Django: кеширование virtualenv, node_modules
 
 2.0.0
 
