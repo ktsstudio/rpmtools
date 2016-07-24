@@ -31,10 +31,15 @@ function opts {
 }
 opts "$@"
 
-echo "Building $name rpm. Version is $version. Release $release"
+cat ${CURRENT_DIR}/../logo.txt
+
+echo
+echo
+echo "Building $name rpm, version $version, release $release"
 echo "Requires: $requires"
 echo "Build requires: $buildrequires"
 echo "Public dirname: $PUBLIC_DIR_NAME"
+echo
 
 rpmbuild -bb ${CURRENT_DIR}/simple.spec \
                    --define "name $name" \

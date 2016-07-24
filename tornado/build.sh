@@ -35,7 +35,7 @@ cat ${CURRENT_DIR}/../logo.txt
 
 echo
 echo
-echo "Building ${NAME} rpm, version is ${VERSION}, release ${RELEASE}"
+echo "Building ${NAME} rpm, version ${VERSION}, release ${RELEASE}"
 echo "Requires: ${REQUIRES}"
 echo "Build requires: ${BUILDREQUIRES}"
 echo "Virtualenv: ${VIRTUALENV}"
