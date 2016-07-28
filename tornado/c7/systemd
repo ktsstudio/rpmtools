@@ -1,13 +1,10 @@
 [Unit]
 Description=#NAME#
-After=network.target remote-fs.target nss-lookup.target
+After=network.target remote-fs.target nss-lookup.target rc-local.service
 
 [Service]
-Type=simple
-PIDFile=/var/run/#NAME#/supervisord.pid
+Type=forking
 ExecStart=/opt/supervisor/bin/supervisord --configuration=/etc/#NAME#/supervisord.conf
-ExecStop=/opt/supervisor/bin/supervisorctl --configuration=/etc/#NAME#/supervisord.conf stop #NAME# all && /opt/supervisor/bin/supervisorctl --configuration=/etc/#NAME#/supervisord.conf shutdown
-PrivateTmp=true
 
 [Install]
 WantedBy=multi-user.target
