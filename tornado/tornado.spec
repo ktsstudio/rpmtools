@@ -152,6 +152,7 @@ rm -rf %{buildroot}%{__prefix}/%{name}/src/env
 %post
 if [ $1 -gt 1 ]; then
     echo "Upgrade"
+    mkdir -p /var/log/%{name}
 else
     echo "Install"
 
