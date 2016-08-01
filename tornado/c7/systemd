@@ -1,10 +1,12 @@
 [Unit]
 Description=#NAME#
-After=network.target remote-fs.target nss-lookup.target rc-local.service
+After=network.target
 
 [Service]
 Type=forking
-ExecStart=/opt/supervisor/bin/supervisord --configuration=/etc/#NAME#/supervisord.conf
+ExecStart=/opt/supervisor/bin/supervisord -c /etc/supervisord.conf
+ExecReload=/opt/supervisor/bin/supervisorctl -c /etc/#NAME#/supervisord.conf reload
+ExecStop=/opt/supervisor/bin/supervisorctl -c /etc/#NAME#/supervisord.conf shutdown
 
 [Install]
 WantedBy=multi-user.target
