@@ -153,6 +153,10 @@ rm -rf %{buildroot}%{__prefix}/%{name}/src/env
 if [ $1 -gt 1 ]; then
     echo "Upgrade"
     mkdir -p /var/log/%{name}
+
+    %if 0%{?rhel}  == 7
+    /bin/systemctl daemon-reload
+    %endif
 else
     echo "Install"
 
