@@ -3,10 +3,8 @@ Description=#NAME#
 After=network.target
 
 [Service]
-Type=forking
+Type=simple
 ExecStart=/opt/supervisor/bin/supervisord -c /etc/#NAME#/supervisord.conf
-ExecReload=/opt/supervisor/bin/supervisorctl -c /etc/#NAME#/supervisord.conf reload
-ExecStop=/opt/supervisor/bin/supervisorctl -c /etc/#NAME#/supervisord.conf shutdown
 
 [Install]
 WantedBy=multi-user.target
