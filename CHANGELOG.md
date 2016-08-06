@@ -1,4 +1,13 @@
+3.3.5
+
+* Simple: возможность задавать grunt-таск из package.json
+
+3.3.1-3.3.4
+
+* Tornado: фиксинг systemd сценария
+
 3.3.0
+
 * Tornado: изменена структура конфигов по-умолчанию для supervisor. Теперь существует папка /etc/%{name}/programs, в
 которой либо дефолтный конфиг простого приложения, либо конфиги из build/programs. /etc/%{name}/supervisor.conf инклюдит 
 конфиги из /etc/%{name}/programs
