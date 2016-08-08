@@ -5,6 +5,8 @@ After=network.target
 [Service]
 Type=simple
 ExecStart=/opt/supervisor/bin/supervisord -c /etc/#NAME#/supervisord.conf
+LimitNOFILE=1048000
+LimitNPROC=32768
 
 [Install]
 WantedBy=multi-user.target

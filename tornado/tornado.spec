@@ -199,5 +199,5 @@ rm -rf %{buildroot}
 %{_initrddir}/%{name}
 %endif
 %if 0%{?rhel}  == 7
-/usr/lib/systemd/system/%{name}.service
+%config(noreplace) /usr/lib/systemd/system/%{name}.service
 %endif
