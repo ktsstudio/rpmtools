@@ -76,6 +76,10 @@ then
     grunt || exit 1
 fi
 
+%if %{?command:1}%{!?command:0}
+  /bin/sh -c '%{command}' || exit 1
+%endif
+
 %install
 mkdir -p %{buildroot}%{__prefix}/%{name}
 
