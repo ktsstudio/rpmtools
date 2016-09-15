@@ -48,8 +48,10 @@ then
 else
   echo "No found cached virtualenv, download..."
 
-  %{virtualenv} --distribute %{name}/env
-  %{name}/env/bin/easy_install -U distribute
+  %{virtualenv} %{name}/env
+  %{name}/env/bin/pip install -U pip
+  %{name}/env/bin/pip install -U setuptools
+
   %{name}/env/bin/pip install -r %{name}/src/requirements.txt --upgrade
   %{virtualenv} --relocatable %{name}/env
 

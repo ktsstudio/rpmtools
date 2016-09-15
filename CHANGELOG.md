@@ -1,3 +1,7 @@
+3.4.2
+
+* Django, Tornado: обновление setuptools и pip перед установкой
+
 3.4.1
 
 * Django, Tornado: скачивание BuildRequires в build.sh
