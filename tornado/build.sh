@@ -41,7 +41,7 @@ echo "Build requires: ${BUILDREQUIRES}"
 echo "Virtualenv: ${VIRTUALENV}"
 echo
 
-yum install -y $BUILDREQUIRES
+yum install -y $BUILDREQUIRES || true
 rpmbuild -bb ${CURRENT_DIR}/tornado.spec \
                    --define "name $NAME" \
                    --define "version $VERSION$VERSIONSUFFIX" \

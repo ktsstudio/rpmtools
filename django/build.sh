@@ -38,6 +38,7 @@ echo "Requires: $requires"
 echo "Build requires: $buildrequires"
 echo
 
+yum install -y $buildrequires || true
 rpmbuild -bb ${CURRENT_DIR}/django.spec \
                    --define "name $name" \
                    --define "version $version" \

@@ -1,3 +1,7 @@
+3.4.1
+
+* Django, Tornado: скачивание BuildRequires в build.sh
+
 3.4.0
 
 * Yii: доп. команда сборки
