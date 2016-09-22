@@ -18,7 +18,7 @@ wsgi=$(sed '6q;d' ${BUILD_INFO})
 keys=$(sed '7q;d' ${BUILD_INFO})
 
 function opts {
-        TEMP=`getopt -o v:g:b:h --long virtualenv:,build:,grunttask:,add-init:,help,disable-auto-migrate,disable-celerycam -- "$@"`
+        TEMP=`getopt -o v:g:b:h -l virtualenv:,grunttask:,build:,add-init:,help,disable-auto-migrate,disable-celerycam -- "$@"`
         eval set -- "$TEMP"
         while true; do
             case "$1" in
@@ -40,7 +40,7 @@ for j in $keys;
 do
     params+=($j)
 done
-opts "${params[@]}"
+opts ${params[@]}
 
 if [ -z ${ADDITIONAL_INIT_SCRIPTS} ]; then
     ADDITIONAL_INIT_SCRIPTS=0
