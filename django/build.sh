@@ -18,7 +18,7 @@ wsgi=$(sed '6q;d' ${BUILD_INFO})
 keys=$(sed '7q;d' ${BUILD_INFO})
 
 function opts {
-        TEMP=`getopt -o v:g:b:h --long virtualenv:,build:,grunttask:,help,add-init:,disable-auto-migrate,disable-celerycam -- "$@"`
+        TEMP=`getopt -o v:g:b:h --long virtualenv:,build:,grunttask:,add-init:,help,disable-auto-migrate,disable-celerycam -- "$@"`
         eval set -- "$TEMP"
         while true; do
             case "$1" in
