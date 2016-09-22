@@ -119,11 +119,24 @@ sed -i 's/WSGI_APPLICATION/%{wsgi}/g' %{buildroot}%{_initrddir}/%{name}-gunicorn
 sed -i 's/PROJECT_NAME/%{name}/g' %{buildroot}%{_initrddir}/%{name}-celeryd
 %{__install} -p -D -m 0755 %{buildroot}%{__prefix}/%{name}/src/rpmtools/django/init.d/celeryd_without_beat.initd.sh %{buildroot}%{_initrddir}/%{name}-celeryd_without_beat
 sed -i 's/PROJECT_NAME/%{name}/g' %{buildroot}%{_initrddir}/%{name}-celeryd_without_beat
-%{__install} -p -D -m 0755 %{buildroot}%{__prefix}/%{name}/src/rpmtools/django/init.d/celerycam.initd.sh %{buildroot}%{_initrddir}/%{name}-celerycam
-sed -i 's/PROJECT_NAME/%{name}/g' %{buildroot}%{_initrddir}/%{name}-celerycam
+
+if [ %{enable_celerycam} -eq 1 ]
+then
+    %{__install} -p -D -m 0755 %{buildroot}%{__prefix}/%{name}/src/rpmtools/django/init.d/celerycam.initd.sh %{buildroot}%{_initrddir}/%{name}-celerycam
+    sed -i 's/PROJECT_NAME/%{name}/g' %{buildroot}%{_initrddir}/%{name}-celerycam
+fi
+
+if [ "%{additional_init_scripts}" != '0' ]
+then
+    for i in %{additional_init_scripts};
+    do
+        echo $i
+        %{__install} -p -D -m 0755 %{buildroot}%{__prefix}/%{name}/src/${i} %{buildroot}%{_initrddir}/$(basename ${i})
+        sed -i 's/PROJECT_NAME/%{name}/g' %{buildroot}%{_initrddir}/$(basename ${i})
+    done
+fi
 
 rm -f %{buildroot}%{__prefix}/%{name}/src/rpmtools/*.initd.sh
-
 
 # configs
 mkdir -p %{buildroot}%{_sysconfdir}/%{name}
@@ -162,7 +175,20 @@ else
     /sbin/chkconfig --list %{name}-gunicorn > /dev/null 2>&1 || /sbin/chkconfig --add %{name}-gunicorn
     /sbin/chkconfig --list %{name}-celeryd > /dev/null 2>&1 || /sbin/chkconfig --add %{name}-celeryd
     /sbin/chkconfig --list %{name}-celeryd_without_beat > /dev/null 2>&1 || /sbin/chkconfig --add %{name}-celeryd_without_beat
-    /sbin/chkconfig --list %{name}-celerycam > /dev/null 2>&1 || /sbin/chkconfig --add %{name}-celerycam
+
+    if [ %{enable_celerycam} -eq 1 ]
+    then
+        /sbin/chkconfig --list %{name}-celerycam > /dev/null 2>&1 || /sbin/chkconfig --add %{name}-celerycam
+    fi
+
+    if [ "%{additional_init_scripts}" != '1' ]
+    then
+        for i in %{additional_init_scripts};
+        do
+            name=$(basename ${i})
+            /sbin/chkconfig --list ${name} > /dev/null 2>&1 || /sbin/chkconfig --add ${name}
+        done
+    fi
 
     # logs
     mkdir -p /var/log/%{name}
@@ -175,7 +201,20 @@ fi
 if [ $1 -eq 0 ]; then
     /sbin/chkconfig --del %{name}-gunicorn
     /sbin/chkconfig --del %{name}-celeryd
-    /sbin/chkconfig --del %{name}-celerycam
+
+    if [ %{enable_celerycam} -eq 1 ]
+    then
+        /sbin/chkconfig --del %{name}-celerycam
+    fi
+
+    if [ "%{additional_init_scripts}" != '1' ]
+    then
+        for i in %{additional_init_scripts};
+        do
+            name=$(basename ${i})
+            /sbin/chkconfig --del ${name} > /dev/null 2>&1 || true
+        done
+    fi
 fi
 
 %clean
@@ -183,14 +222,12 @@ rm -rf %{buildroot}
 
 %files
 %defattr(-,root,root)
-%{_initrddir}/%{name}-gunicorn
-%{_initrddir}/%{name}-celeryd
-%{_initrddir}/%{name}-celeryd_without_beat
-%{_initrddir}/%{name}-celerycam
+%{_bindir}/%{name}
+%{_initrddir}/%{name}-*
 %{__prefix}/%{name}/
+
 %config(noreplace) %{_sysconfdir}/%{name}/%{name}.conf
 %config(noreplace) %{_sysconfdir}/%{name}/gunicorn.conf
-%{_bindir}/%{name}
 
 %defattr(-,%{name},%{name})
 /var/run/%{name}/
