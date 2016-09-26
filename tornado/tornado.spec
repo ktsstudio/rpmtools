@@ -115,6 +115,12 @@ pushd %{name}/src
     done
 popd
 
+pushd %{name}/src
+    %if %{?command:1}%{!?command:0}
+      /bin/sh -c '%{command}' || exit 1
+    %endif
+popd
+
 %install
 mkdir -p %{buildroot}%{__prefix}/%{name}
 mkdir -p %{buildroot}%{_sysconfdir}/%{name}
