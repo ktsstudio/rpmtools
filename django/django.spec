@@ -169,6 +169,8 @@ if [ $1 -gt 1 ]; then
     if %{name} > /dev/null 2>&1; then
         %{name} migrate
     fi
+
+    find %{__prefix}/%{name} -type f -name "*.py[co]" -delete
 else
     echo "Install"
 

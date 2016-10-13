@@ -162,6 +162,8 @@ if [ $1 -gt 1 ]; then
     echo "Upgrade"
     mkdir -p /var/log/%{name}
 
+    find %{__prefix}/%{name} -type f -name "*.py[co]" -delete
+
     %if 0%{?rhel}  == 7
     /bin/systemctl daemon-reload
     %endif
