@@ -33,6 +33,7 @@ function opts {
         done
 }
 opts "$@"
+export FULLVERSION="${VERSION}-${RELEASE}"
 
 cat ${CURRENT_DIR}/../logo.txt
 
