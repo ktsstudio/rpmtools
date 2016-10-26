@@ -4,7 +4,7 @@
 Name: %{name}
 Summary: %{summary}
 Version: %{version}
-Release: %{release}
+Release: %{release}%{?dist}
 BuildRoot: %{_tmppath}/%{name}-%{version}-%{release}-buildroot
 Prefix: %{_prefix}
 Requires: %{requires}
@@ -108,10 +108,9 @@ find %{name}/ -type f -exec sed -i "s:%{_builddir}:%{__prefix}:" {} \;
 mkdir -p %{buildroot}%{__prefix}/%{name}
 mv %{name} %{buildroot}%{__prefix}/
 
-# hack for lib64
 [ -d %{buildroot}%{__prefix}/%{name}/env/lib64 ] && rm -rf %{buildroot}%{__prefix}/%{name}/env/lib64 && ln -sf %{__prefix}/%{name}/env/lib %{buildroot}%{__prefix}/%{name}/env/lib64
 
-# init.d files for gunicorn, celeryd, celerycam
+# init.d files for gunicorn, celeryd
 %{__install} -p -D -m 0755 %{buildroot}%{__prefix}/%{name}/src/rpmtools/django/init.d/gunicorn.initd.sh %{buildroot}%{_initrddir}/%{name}-gunicorn
 sed -i 's/PROJECT_NAME/%{name}/g' %{buildroot}%{_initrddir}/%{name}-gunicorn
 sed -i 's/WSGI_APPLICATION/%{wsgi}/g' %{buildroot}%{_initrddir}/%{name}-gunicorn
