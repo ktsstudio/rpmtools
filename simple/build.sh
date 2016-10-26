@@ -1,10 +1,12 @@
 #!/bin/bash
 CURRENT_DIR=$(cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd)
 SOURCE_DIR="${CURRENT_DIR}/../.."
-META="python ${CURRENT_DIR}/../meta.py --file ${CURRENT_DIR}/../../package.json --query"
+META=$(echo "python ${CURRENT_DIR}/../meta.py --file ${CURRENT_DIR}/../../package.json --query")
+
+source ${CURRENT_DIR}/../common.sh
+
 COMMAND="exit 0"
 PUBLIC_DIR_NAME="public"
-
 NAME=$(${META} name)
 VERSION_SUFFIX=""
 SUMMARY=$(${META} name)
@@ -40,8 +42,7 @@ cat ${CURRENT_DIR}/../logo.txt
 echo
 echo
 echo "Building $NAME rpm, version $VERSION, release $RELEASE"
-echo "Requires: $requires"
-echo "Build requires: $buildrequires"
+echo "Requires: $REQUIRES"
 echo "Public dirname: $PUBLIC_DIR_NAME"
 echo
 

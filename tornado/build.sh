@@ -1,7 +1,9 @@
 #!/bin/bash
 CURRENT_DIR=$(cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd)
 SOURCE_DIR="${CURRENT_DIR}/../../"
-META="python ${CURRENT_DIR}/../meta.py --file ${SOURCE_DIR}/build/package.json --query"
+META=$(echo "python ${CURRENT_DIR}/../meta.py --file ${SOURCE_DIR}/build/package.json --query")
+
+source ${CURRENT_DIR}/../common.sh
 
 NAME=$(${META} name)
 VERSION=$(${META} version)
@@ -12,7 +14,6 @@ REQUIRES=$(${META} yumDependencies)
 BUILDREQUIRES="$(${META} yumBuildDependencies) python-argparse"
 VIRTUALENV=$(${META} virtualenv)
 COMMAND=$(${META} command)
-META=$(echo ${META})
 
 [[ $VIRTUALENV == '' ]] && VIRTUALENV=$(which virtualenv)
 [[ $COMMAND == '' ]] && COMMAND="exit 0"
@@ -45,7 +46,8 @@ echo "Build requires: ${BUILDREQUIRES}"
 echo "Virtualenv: ${VIRTUALENV}"
 echo
 
-yum install -y $BUILDREQUIRES || true
+yuminstall ${BUILDREQUIRES}
+
 rpmbuild -bb ${CURRENT_DIR}/tornado.spec \
                    --define "name ${NAME}" \
                    --define "version ${VERSION}${VERSIONSUFFIX}" \

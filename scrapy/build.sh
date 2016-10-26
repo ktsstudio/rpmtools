@@ -1,31 +1,24 @@
 #!/bin/bash
 CURRENT_DIR=$(cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd)
 SOURCE_DIR="${CURRENT_DIR}/../../"
-META="python ${CURRENT_DIR}/../meta.py --file ${CURRENT_DIR}/../../package.json --query"
-
-rpm -q python-argparse > /dev/null 2>&1
-if [ $? -ne 0 ];
-then
-	echo 'Package python-argparse no installed, abort'
-	exit 1
-fi
-
+META=$(echo "python ${CURRENT_DIR}/../meta.py --file ${CURRENT_DIR}/../../package.json --query")
 VIRTUALENV=$(which virtualenv 2>/dev/null)
 
-name=$(${META} name)
-summary=$(${META} name)
-version=$(${META} version)
-release=$(date +%s)
-requires=$(${META} yumDependencies)
-buildrequires="$(${META} yumBuildDependencies) python-argparse"
-meta=$(echo ${META})
+source ${CURRENT_DIR}/../common.sh
+
+NAME=$(${META} name)
+SUMMARY=$(${META} name)
+VERSION=$(${META} version)
+RELEASE=$(date +%s)
+REQUIRES=$(${META} yumDependencies)
+BUILDREQUIRES="$(${META} yumBuildDependencies) python-argparse"
 
 function opts {
         TEMP=`getopt -o v:b:h --long virtualenv:,build:,help -- "$@"`
         eval set -- "$TEMP"
         while true; do
             case "$1" in
-                -b|--build) release=$2; shift 2 ;;
+                -b|--build) RELEASE=$2; shift 2 ;;
                 -v|--virtualenv) VIRTUALENV=$2; shift 2 ;;
                 -h|--help) echo 'help under constuction' ; shift 1;;
                 --) shift ; break ;;
@@ -40,18 +33,20 @@ cat ${CURRENT_DIR}/../logo.txt
 
 echo
 echo
-echo "Building $name rpm, version $version, release $release"
-echo "Requires: $requires"
-echo "Build requires: $buildrequires"
+echo "Building $NAME rpm, version $VERSION, release $RELEASE"
+echo "Requires: $REQUIRES"
+echo "Build requires: $BUILDREQUIRES"
 echo
 
+yuminstall ${BUILDREQUIRES}
+
 rpmbuild -bb ${CURRENT_DIR}/scrapy.spec \
-                   --define "name $name" \
-                   --define "version $version" \
-                   --define "release $release" \
+                   --define "name $NAME" \
+                   --define "version $VERSION" \
+                   --define "release $RELEASE" \
                    --define "source ${SOURCE_DIR}" \
-                   --define "summary $summary" \
-                   --define "requires $requires" \
-                   --define "buildrequires $buildrequires" \
-                   --define "meta $meta" \
+                   --define "summary $SUMMARY" \
+                   --define "requires $REQUIRES" \
+                   --define "buildrequires $BUILDREQUIRES" \
+                   --define "meta $META" \
                    --define "virtualenv $VIRTUALENV"

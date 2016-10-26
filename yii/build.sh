@@ -1,7 +1,9 @@
 #!/bin/bash
 CURRENT_DIR=$(cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd)
 SOURCE_DIR="${CURRENT_DIR}/../../"
-META="python ${CURRENT_DIR}/../meta.py --file ${CURRENT_DIR}/../../package.json --query"
+META=$(echo "python ${CURRENT_DIR}/../meta.py --file ${CURRENT_DIR}/../../package.json --query")
+
+source ${CURRENT_DIR}/../common.sh
 
 NAME=$(${META} name)
 SUMMARY=$(${META} name)
@@ -9,7 +11,6 @@ VERSION=$(${META} version)
 RELEASE=$(date +%s)
 REQUIRES=$(${META} yumDependencies)
 BUILDREQUIRES="$(${META} yumBuildDependencies) python-argparse"
-META=$(echo ${META})
 
 COMMAND=$(${META} command)
 [[ ${COMMAND} == '' ]] && COMMAND="exit 0"
@@ -39,7 +40,8 @@ echo "Requires: $REQUIRES"
 echo "Build requires: $BUILDREQUIRES"
 echo
 
-yum install -y $BUILDREQUIRES
+yuminstall ${BUILDREQUIRES}
+
 rpmbuild -bb ${CURRENT_DIR}/yii.spec \
                    --define "name $NAME" \
                    --define "version $VERSION" \
