@@ -7,7 +7,7 @@ Version: %{version}
 Release: %{release}%{?dist}
 BuildRoot: %{_tmppath}/%{name}-%{version}-%{release}-buildroot
 Prefix: %{_prefix}
-Requires: %{requires} supervisor = 3.1.3
+Requires: %{requires}
 BuildRequires: %{buildrequires}
 License: proprietary
 Group: Apps/sys
@@ -129,7 +129,6 @@ mkdir -p %{buildroot}/var/run/%{name}
 
 mv %{name} %{buildroot}%{__prefix}/
 
-# hack for lib64
 [ -d %{buildroot}%{__prefix}/%{name}/env/lib64 ] && rm -rf %{buildroot}%{__prefix}/%{name}/env/lib64 && ln -sf %{__prefix}/%{name}/env/lib %{buildroot}%{__prefix}/%{name}/env/lib64
 
 %if 0%{?rhel}  == 6
@@ -143,7 +142,6 @@ sed -i 's/#NAME#/%{name}/g' %{buildroot}/usr/lib/systemd/system/%{name}.service
 
 # configs
 %{__install} -p -D -m 0644 %{buildroot}%{__prefix}/%{name}/src/build/default.conf %{buildroot}%{_sysconfdir}/%{name}/%{name}.conf
-
 %{__install} -p -D -m 0644 %{buildroot}%{__prefix}/%{name}/src/rpmtools/tornado/etc/supervisord.conf %{buildroot}%{_sysconfdir}/%{name}/supervisord.conf
 sed -i 's/#NAME#/%{name}/g' %{buildroot}%{_sysconfdir}/%{name}/supervisord.conf
 
@@ -153,6 +151,14 @@ else
     %{__install} -p -D -m 0644 %{buildroot}%{__prefix}/%{name}/src/rpmtools/tornado/etc/program.conf %{buildroot}%{_sysconfdir}/%{name}/programs/%{name}.conf
     sed -i 's/#NAME#/%{name}/g' %{buildroot}%{_sysconfdir}/%{name}/programs/%{name}.conf
 fi
+
+if [ ! -e %{buildroot}%{__prefix}/%{name}/src/manage.sh ]; then
+    cp -r %{buildroot}%{__prefix}/%{name}/src/rpmtools/tornado/manage.sh %{buildroot}%{__prefix}/%{name}/src/manage.sh
+fi
+chmod 755 %{buildroot}%{__prefix}/%{name}/src/manage.sh
+
+mkdir -p %{buildroot}%{_bindir}
+ln -sf %{__prefix}/%{name}/src/manage.sh %{buildroot}%{_bindir}/%{name}
 
 rm -rf %{buildroot}%{__prefix}/%{name}/src/rpmtools
 rm -rf %{buildroot}%{__prefix}/%{name}/src/env
@@ -200,14 +206,19 @@ rm -rf %{buildroot}
 %files
 %defattr(-,root,root)
 %{__prefix}/%{name}/
+%{_bindir}/%{name}
+
 %config(noreplace) %{_sysconfdir}/%{name}/%{name}.conf
 %config(noreplace) %{_sysconfdir}/%{name}/supervisord.conf
 %config(noreplace) %{_sysconfdir}/%{name}/programs/*
+
 %defattr(-,%{name},%{name})
 /var/run/%{name}/
+
 %if 0%{?rhel}  == 6
 %{_initrddir}/%{name}
 %endif
+
 %if 0%{?rhel}  == 7
 %config(noreplace) /usr/lib/systemd/system/%{name}.service
 %endif
