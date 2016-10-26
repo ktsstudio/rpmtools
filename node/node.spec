@@ -4,7 +4,7 @@
 Name: %{name}
 Summary: %{summary}
 Version: %{version}
-Release: %{release}
+Release: %{release}%{?dist}
 BuildRoot: %{_tmppath}/%{name}-%{version}-%{release}-buildroot
 Prefix: %{_prefix}
 Requires: %{requires}
