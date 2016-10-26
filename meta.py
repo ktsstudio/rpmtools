@@ -4,7 +4,7 @@ import json, sys, argparse
 
 
 def help():
-    print 'meta.py -f <input file> -q <query>'
+    print('meta.py -f <input file> -q <query>')
 
 
 class JsonParser(object):
@@ -83,15 +83,11 @@ if __name__ == '__main__':
     value = parser.get(args.query)
     if value is not None:
         if isinstance(value, list):
-            for i in value:
-                print i,
+            print(' '.join(value))
         elif isinstance(value, dict):
             if args.keys:
-                for i in value.keys():
-                    if args.escape:
-                        i = i.replace('.', '\.')
-                    print i,
+                print(' '.join([i.replace('.', '\.') if args.escape else i for i in value.keys()]))
             else:
-                print value
+                print(value)
         else:
-            print value
+            print(value)
