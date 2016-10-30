@@ -77,13 +77,14 @@ if __name__ == '__main__':
     except IOError as e:
         sys.stderr.write(str(e.strerror) + '\n')
         exit(2)
+
     parser = JsonParser(f.read())
     f.close()
 
     value = parser.get(args.query)
     if value is not None:
         if isinstance(value, list):
-            print(' '.join(value))
+            print('\n'.join(value))
         elif isinstance(value, dict):
             if args.keys:
                 print(' '.join([i.replace('.', '\.') if args.escape else i for i in value.keys()]))

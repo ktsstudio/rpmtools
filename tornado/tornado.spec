@@ -113,9 +113,12 @@ pushd %{name}/src
         echo "Remove files: ${i}"
         rm -rf ${i}
     done
-popd
 
-pushd %{name}/src
+    %{meta} commands | while read i; do
+        echo "Execute: ${i}"
+        /bin/sh -c "${i}" || exit 1
+    done
+
     %if %{?command:1}%{!?command:0}
       /bin/sh -c '%{command}' || exit 1
     %endif
