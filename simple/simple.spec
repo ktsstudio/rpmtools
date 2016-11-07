@@ -83,6 +83,11 @@ fi
     /bin/sh -c "${i}" || exit 1
 done
 
+for i in $(%{meta} excludeFiles); do
+    echo "Remove files: ${i}"
+    rm -rf ${i}
+done
+
 %install
 mkdir -p %{buildroot}%{__prefix}/
 mv %{name}/%{public} %{buildroot}%{__prefix}/%{name}
