@@ -75,7 +75,7 @@ pushd %{name}/src
           tar xf ${CACHED_NODE_MODULES} ./
         else
           echo "No found cached node_modules, download..."
-          yarn=$(which yarn)
+          yarn=$(which yarn 2>/dev/null || true)
           if [ "${yarn}" != "" ]; then
             $yarn || exit 1
           else
