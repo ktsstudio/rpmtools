@@ -114,11 +114,6 @@ pushd %{name}/src
 popd
 
 pushd %{name}/src
-    for i in $(%{meta} excludeFiles); do
-        echo "Remove files: ${i}"
-        rm -rf ${i}
-    done
-
     %{meta} commands | while read i; do
         echo "Execute: ${i}"
         /bin/sh -c "${i}" || exit 1
@@ -127,6 +122,11 @@ pushd %{name}/src
     %if %{?command:1}%{!?command:0}
       /bin/sh -c '%{command}' || exit 1
     %endif
+
+    for i in $(%{meta} excludeFiles); do
+        echo "Remove files: ${i}"
+        rm -rf ${i}
+    done
 popd
 
 %install
