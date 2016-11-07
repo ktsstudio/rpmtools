@@ -16,7 +16,6 @@ RELEASE=$(date +%s)
 GRUNTTASK=$(${META} grunttask)
 [[ $GRUNTTASK == '' ]] && GRUNTTASK="default"
 
-META_COMMAND=$(echo ${META})
 
 function opts {
         TEMP=`getopt -o g:s:b:h:c:p --long grunttask:,versionsuffix:,build:,command:,public:,help -- "$@"`
@@ -52,7 +51,7 @@ rpmbuild -bb ${CURRENT_DIR}/simple.spec \
                    --define "release $RELEASE" \
                    --define "source ${SOURCE_DIR}" \
                    --define "summary $SUMMARY" \
-                   --define "meta $META_COMMAND" \
+                   --define "meta ${META}" \
                    --define "grunttask ${GRUNTTASK}" \
                    --define "command ${COMMAND}" \
                    --define "public ${PUBLIC_DIR_NAME}"

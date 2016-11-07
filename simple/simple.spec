@@ -37,7 +37,12 @@ then
       tar xf ${CACHED_NODE_MODULES} ./
     else
       echo "No found cached node_modules, download..."
-      npm install || exit 1
+      yarn=$(which yarn 2>/dev/null || true)
+      if [ "${yarn}" != "" ]; then
+        $yarn || exit 1
+      else
+        npm install || exit 1
+      fi
       echo "Save node_modules into cache: ${CACHED_NODE_MODULES}"
       tar cf ${CACHED_NODE_MODULES} ./node_modules || true
     fi
@@ -72,6 +77,11 @@ fi
 %if %{?command:1}%{!?command:0}
   /bin/sh -c '%{command}' || exit 1
 %endif
+
+%{meta} commands | while read i; do
+    echo "Execute: ${i}"
+    /bin/sh -c "${i}" || exit 1
+done
 
 %install
 mkdir -p %{buildroot}%{__prefix}/
