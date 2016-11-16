@@ -49,8 +49,6 @@ if [ -z ${ADDITIONAL_INIT_SCRIPTS} ]; then
     ADDITIONAL_INIT_SCRIPTS=0
 fi
 
-export FULLVERSION="${VERSION}-${RELEASE}"
-
 cat ${CURRENT_DIR}/../logo.txt
 
 echo
