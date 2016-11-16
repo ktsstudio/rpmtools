@@ -28,6 +28,7 @@ fi
 /usr/bin/getent passwd %{name} || /usr/sbin/useradd -r -d /opt/%{name}/ -s /bin/false %{name} -g %{name}
 
 %build
+
 mkdir -p %{name}
 cp -r '%{source}' %{name}/src
 rm -rf %{name}/src/.git*
@@ -60,7 +61,7 @@ find %{name}/ -type f -exec sed -i "s:%{_builddir}:%{__prefix}:" {} \;
 
 pushd %{name}/src
     gruntCwd=$(%{meta} gruntCwd)
-    if [ $gruntCwd != '' ]
+    if [ "${gruntCwd}" != '' ]
     then
         cd $gruntCwd
     fi
@@ -132,32 +133,59 @@ popd
 %install
 mkdir -p %{buildroot}%{__prefix}/%{name}
 mkdir -p %{buildroot}%{_sysconfdir}/%{name}
-mkdir -p %{buildroot}%{_sysconfdir}/%{name}/programs
 mkdir -p %{buildroot}/var/run/%{name}
 
 mv %{name} %{buildroot}%{__prefix}/
 
 [ -d %{buildroot}%{__prefix}/%{name}/env/lib64 ] && rm -rf %{buildroot}%{__prefix}/%{name}/env/lib64 && ln -sf %{__prefix}/%{name}/env/lib %{buildroot}%{__prefix}/%{name}/env/lib64
 
-%if 0%{?rhel}  == 6
-%{__install} -p -D -m 0755 %{buildroot}%{__prefix}/%{name}/src/rpmtools/tornado/c6/main.init.sh %{buildroot}%{_initrddir}/%{name}
-%endif
+%{meta} initScripts | while read i; do
+    echo $i
+    %if 0%{?rhel}  == 6
+        %{__install} -p -D -m 0755 %{buildroot}%{__prefix}/%{name}/src/${i} %{buildroot}%{_initrddir}/$(basename ${i})
+        sed -i 's/#NAME#/%{name}/g' %{buildroot}%{_initrddir}/$(basename ${i})
+    %endif
 
-%if 0%{?rhel}  == 7
-%{__install} -p -D -m 0755 %{buildroot}%{__prefix}/%{name}/src/rpmtools/tornado/c7/systemd %{buildroot}/usr/lib/systemd/system/%{name}.service
-sed -i 's/#NAME#/%{name}/g' %{buildroot}/usr/lib/systemd/system/%{name}.service
-%endif
+    %if 0%{?rhel}  == 7
+        %{__install} -p -D -m 0755 %{buildroot}%{__prefix}/%{name}/src/${i} %{buildroot}/usr/lib/systemd/system/$(basename ${i})
+        sed -i 's/#NAME#/%{name}/g' %{buildroot}/usr/lib/systemd/system/$(basename ${i})
+    %endif
+done
+
+if [ -d %{buildroot}%{__prefix}/%{name}/src/build/etc ]; then
+    rm -rf %{buildroot}%{_sysconfdir}/%{name}
+    cp -rf %{buildroot}%{__prefix}/%{name}/src/build/etc %{buildroot}%{_sysconfdir}/%{name}
+fi
 
 # configs
-%{__install} -p -D -m 0644 %{buildroot}%{__prefix}/%{name}/src/build/default.conf %{buildroot}%{_sysconfdir}/%{name}/%{name}.conf
-%{__install} -p -D -m 0644 %{buildroot}%{__prefix}/%{name}/src/rpmtools/tornado/etc/supervisord.conf %{buildroot}%{_sysconfdir}/%{name}/supervisord.conf
-sed -i 's/#NAME#/%{name}/g' %{buildroot}%{_sysconfdir}/%{name}/supervisord.conf
+if [ "$(%{meta} template)" == 'supervisor' ]; then
+    mkdir -p %{buildroot}%{_sysconfdir}/%{name}/programs
 
-if [ -d %{buildroot}%{__prefix}/%{name}/src/build/programs ]; then
-    %{__install} -p -D -m 0644 --target-directory=%{buildroot}%{_sysconfdir}/%{name}/programs %{buildroot}%{__prefix}/%{name}/src/build/programs/*
-else
-    %{__install} -p -D -m 0644 %{buildroot}%{__prefix}/%{name}/src/rpmtools/tornado/etc/program.conf %{buildroot}%{_sysconfdir}/%{name}/programs/%{name}.conf
-    sed -i 's/#NAME#/%{name}/g' %{buildroot}%{_sysconfdir}/%{name}/programs/%{name}.conf
+    if [ -e %{buildroot}%{__prefix}/%{name}/src/build/default.conf ]; then
+        %{__install} -p -D -m 0644 %{buildroot}%{__prefix}/%{name}/src/build/default.conf %{buildroot}%{_sysconfdir}/%{name}/%{name}.conf
+    else
+        touch %{buildroot}%{_sysconfdir}/%{name}/%{name}.conf
+    fi
+
+    %{__install} -p -D -m 0644 %{buildroot}%{__prefix}/%{name}/src/rpmtools/tornado/templates/supervisor/configs/supervisord.conf %{buildroot}%{_sysconfdir}/%{name}/supervisord.conf
+    sed -i 's/#NAME#/%{name}/g' %{buildroot}%{_sysconfdir}/%{name}/supervisord.conf
+
+    if [ -d %{buildroot}%{__prefix}/%{name}/src/build/programs ]; then
+        %{__install} -p -D -m 0644 --target-directory=%{buildroot}%{_sysconfdir}/%{name}/programs %{buildroot}%{__prefix}/%{name}/src/build/programs/*
+    else
+        %{__install} -p -D -m 0644 %{buildroot}%{__prefix}/%{name}/src/rpmtools/tornado/templates/supervisor/configs/program.conf %{buildroot}%{_sysconfdir}/%{name}/programs/%{name}.conf
+        sed -i 's/#NAME#/%{name}/g' %{buildroot}%{_sysconfdir}/%{name}/programs/%{name}.conf
+    fi
+
+    %if 0%{?rhel} == 6
+        %{__install} -p -D -m 0755 %{buildroot}%{__prefix}/%{name}/src/rpmtools/tornado/templates/supervisor/init/c6/main.init.sh %{buildroot}%{_initrddir}/%{name}
+        sed -i 's/#NAME#/%{name}/g' %{buildroot}%{_initrddir}/%{name}
+    %endif
+
+    %if 0%{?rhel} == 7
+        %{__install} -p -D -m 0755 %{buildroot}%{__prefix}/%{name}/src/rpmtools/tornado/templates/supervisor/init/c7/systemd %{buildroot}/usr/lib/systemd/system/%{name}.service
+        sed -i 's/#NAME#/%{name}/g' %{buildroot}/usr/lib/systemd/system/%{name}.service
+    %endif
 fi
 
 if [ ! -e %{buildroot}%{__prefix}/%{name}/src/manage.sh ]; then
@@ -170,6 +198,7 @@ ln -sf %{__prefix}/%{name}/src/manage.sh %{buildroot}%{_bindir}/%{name}
 
 rm -rf %{buildroot}%{__prefix}/%{name}/src/rpmtools
 rm -rf %{buildroot}%{__prefix}/%{name}/src/env
+
 
 %post
 if [ $1 -gt 1 ]; then
@@ -190,7 +219,9 @@ else
     %endif
 
     %if 0%{?rhel}  == 7
-    systemctl enable %{name}.service
+    if [ -e /usr/lib/systemd/system/%{name}.service ]; then
+        systemctl enable %{name}.service
+    fi
     %endif
 
     mkdir -p /var/log/%{name}
@@ -204,7 +235,9 @@ if [ $1 -eq 0 ]; then
     %endif
 
     %if 0%{?rhel}  == 7
-    systemctl disable %{name}.service
+    if [ -e /usr/lib/systemd/system/%{name}.service ]; then
+        systemctl disable %{name}.service
+    fi
     %endif
 fi
 
@@ -216,17 +249,15 @@ rm -rf %{buildroot}
 %{__prefix}/%{name}/
 %{_bindir}/%{name}
 
-%config(noreplace) %{_sysconfdir}/%{name}/%{name}.conf
-%config(noreplace) %{_sysconfdir}/%{name}/supervisord.conf
-%config(noreplace) %{_sysconfdir}/%{name}/programs/*
+%config(noreplace) %{_sysconfdir}/%{name}
 
 %defattr(-,%{name},%{name})
 /var/run/%{name}/
 
-%if 0%{?rhel}  == 6
-%{_initrddir}/%{name}
+%if 0%{?rhel}  == 6 && 0%{?initPresents:1} == 1
+%{_initrddir}/%{name}*
 %endif
 
-%if 0%{?rhel}  == 7
-%config(noreplace) /usr/lib/systemd/system/%{name}.service
+%if 0%{?rhel} == 7 && 0%{?initPresents:1} == 1
+%config(noreplace) /usr/lib/systemd/system/%{name}*
 %endif
