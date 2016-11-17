@@ -101,11 +101,14 @@ echo %{version} > %{buildroot}%{__prefix}/%{name}/version.txt
 %post
 mkdir -p /var/log/%{name}
 mkdir -p /var/lib/%{name}/runtime
+
 #temp fix
 chmod -R 777 /var/log/%{name}
 chmod -R 777 /var/lib/%{name}/runtime
 chown -R %{name}:%{name} /var/log/%{name}
 chown -R %{name}:%{name} /var/lib/%{name}/runtime
+
+rm -rf /var/lib/gdekuda/runtime/twig_cache/
 
 %preun
 
