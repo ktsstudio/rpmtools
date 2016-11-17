@@ -15,7 +15,7 @@ Autoreq: 0
 
 
 %description
-%{name} built with generic tornado project spec
+%{name} built with generic python project spec
 
 %prep
 if [ -d %{name} ]; then
@@ -35,25 +35,43 @@ rm -rf %{name}/src/.git*
 rm -rf %{name}/src/rpmtools/.git*
 rm -rf %{name}/src/.idea*
 
-
-HASH=$(echo "$(cat %{name}/src/requirements.txt)%{virtualenv}" | md5sum | awk '{ print $1 }')
-CACHED_VIRTUALENV="/tmp/virtualenv_${HASH}.tar"
-if [ -e "${CACHED_VIRTUALENV}" ]
-then
-  echo "Found cached virtualenv: ${CACHED_VIRTUALENV}, use it"
-  tar xf ${CACHED_VIRTUALENV} %{name}
+REQUIREMENTS=$(%{meta} requirementsPath)
+if [ "${REQUIREMENTS}" == '' ]; then
+    REQUIREMENTS="%{name}/src/requirements.txt"
 else
-  echo "No found cached virtualenv, download..."
+    REQUIREMENTS="%{name}/src/${REQUIREMENTS}"
+fi
 
-  %{virtualenv} %{name}/env
-  %{name}/env/bin/pip install -U pip
-  %{name}/env/bin/pip install -U setuptools
+if [ -f "${REQUIREMENTS}" ]; then
+    REQUIREMENTS_CONTENT=$(cat ${REQUIREMENTS})
+    REQUIREMENTS_CONTENT_COMMAND=$(%{meta} requirementsContentCommand)
+    if [ "${REQUIREMENTS_CONTENT_COMMAND}" != "" ]; then
+        pushd %{name}/src
+            REQUIREMENTS_CONTENT=$(bash -c "${REQUIREMENTS_CONTENT_COMMAND}")
+        popd
+    fi
 
-  %{name}/env/bin/pip install -r %{name}/src/requirements.txt --upgrade
-  %{virtualenv} --relocatable %{name}/env
+    HASH=$(echo "${REQUIREMENTS_CONTENT}%{virtualenv}" | md5sum | awk '{ print $1 }')
+    CACHED_VIRTUALENV="/tmp/virtualenv_${HASH}.tar"
+    if [ -e "${CACHED_VIRTUALENV}" ]
+    then
+      echo "Found cached virtualenv: ${CACHED_VIRTUALENV}, use it"
+      tar xf ${CACHED_VIRTUALENV} %{name}
+    else
+      echo "No found cached virtualenv, download..."
 
-  echo "Save virtualenv into cache: ${CACHED_VIRTUALENV}"
-  tar cf ${CACHED_VIRTUALENV} %{name}/env || true
+      %{virtualenv} %{name}/env
+
+      %{name}/env/bin/pip install -U pip setuptools
+      %{name}/env/bin/pip install -r ${REQUIREMENTS} --upgrade
+
+      %{virtualenv} --relocatable %{name}/env
+
+      echo "Save virtualenv into cache: ${CACHED_VIRTUALENV}"
+      tar cf ${CACHED_VIRTUALENV} %{name}/env || true
+    fi
+else
+    echo 'Not found requirements, skipped...'
 fi
 
 find %{name}/ -type f -name "*.py[co]" -delete
@@ -78,7 +96,7 @@ pushd %{name}/src
           echo "No found cached node_modules, download..."
           yarn=$(which yarn 2>/dev/null || true)
           if [ "${yarn}" != "" ]; then
-            $yarn || exit 1
+            ${yarn} || exit 1
           else
             npm install || exit 1
           fi
@@ -110,7 +128,7 @@ pushd %{name}/src
 
     if [ -e "Gruntfile.js" ]
     then
-        grunt $(%{meta} grunt_task) || exit 1
+        grunt $(%{meta} gruntTask) || exit 1
     fi
 popd
 
@@ -152,12 +170,7 @@ mv %{name} %{buildroot}%{__prefix}/
     %endif
 done
 
-if [ -d %{buildroot}%{__prefix}/%{name}/src/build/etc ]; then
-    rm -rf %{buildroot}%{_sysconfdir}/%{name}
-    cp -rf %{buildroot}%{__prefix}/%{name}/src/build/etc %{buildroot}%{_sysconfdir}/%{name}
-fi
-
-# configs
+# templates
 if [ "$(%{meta} template)" == 'supervisor' ]; then
     mkdir -p %{buildroot}%{_sysconfdir}/%{name}/programs
 
@@ -167,29 +180,35 @@ if [ "$(%{meta} template)" == 'supervisor' ]; then
         touch %{buildroot}%{_sysconfdir}/%{name}/%{name}.conf
     fi
 
-    %{__install} -p -D -m 0644 %{buildroot}%{__prefix}/%{name}/src/rpmtools/tornado/templates/supervisor/configs/supervisord.conf %{buildroot}%{_sysconfdir}/%{name}/supervisord.conf
+    %{__install} -p -D -m 0644 %{buildroot}%{__prefix}/%{name}/src/rpmtools/python/templates/supervisor/configs/supervisord.conf %{buildroot}%{_sysconfdir}/%{name}/supervisord.conf
     sed -i 's/#NAME#/%{name}/g' %{buildroot}%{_sysconfdir}/%{name}/supervisord.conf
 
     if [ -d %{buildroot}%{__prefix}/%{name}/src/build/programs ]; then
         %{__install} -p -D -m 0644 --target-directory=%{buildroot}%{_sysconfdir}/%{name}/programs %{buildroot}%{__prefix}/%{name}/src/build/programs/*
     else
-        %{__install} -p -D -m 0644 %{buildroot}%{__prefix}/%{name}/src/rpmtools/tornado/templates/supervisor/configs/program.conf %{buildroot}%{_sysconfdir}/%{name}/programs/%{name}.conf
+        %{__install} -p -D -m 0644 %{buildroot}%{__prefix}/%{name}/src/rpmtools/python/templates/supervisor/configs/program.conf %{buildroot}%{_sysconfdir}/%{name}/programs/%{name}.conf
         sed -i 's/#NAME#/%{name}/g' %{buildroot}%{_sysconfdir}/%{name}/programs/%{name}.conf
     fi
 
     %if 0%{?rhel} == 6
-        %{__install} -p -D -m 0755 %{buildroot}%{__prefix}/%{name}/src/rpmtools/tornado/templates/supervisor/init/c6/main.init.sh %{buildroot}%{_initrddir}/%{name}
+        %{__install} -p -D -m 0755 %{buildroot}%{__prefix}/%{name}/src/rpmtools/python/templates/supervisor/init/c6/main.init.sh %{buildroot}%{_initrddir}/%{name}
         sed -i 's/#NAME#/%{name}/g' %{buildroot}%{_initrddir}/%{name}
     %endif
 
     %if 0%{?rhel} == 7
-        %{__install} -p -D -m 0755 %{buildroot}%{__prefix}/%{name}/src/rpmtools/tornado/templates/supervisor/init/c7/systemd %{buildroot}/usr/lib/systemd/system/%{name}.service
+        %{__install} -p -D -m 0755 %{buildroot}%{__prefix}/%{name}/src/rpmtools/python/templates/supervisor/init/c7/systemd %{buildroot}/usr/lib/systemd/system/%{name}.service
         sed -i 's/#NAME#/%{name}/g' %{buildroot}/usr/lib/systemd/system/%{name}.service
     %endif
 fi
 
+# replace etc folder
+if [ -d %{buildroot}%{__prefix}/%{name}/src/build/etc ]; then
+    rm -rf %{buildroot}%{_sysconfdir}/%{name}
+    cp -rf %{buildroot}%{__prefix}/%{name}/src/build/etc %{buildroot}%{_sysconfdir}/%{name}
+fi
+
 if [ ! -e %{buildroot}%{__prefix}/%{name}/src/manage.sh ]; then
-    cp -r %{buildroot}%{__prefix}/%{name}/src/rpmtools/tornado/manage.sh %{buildroot}%{__prefix}/%{name}/src/manage.sh
+    cp -r %{buildroot}%{__prefix}/%{name}/src/rpmtools/python/manage.sh %{buildroot}%{__prefix}/%{name}/src/manage.sh
 fi
 chmod 755 %{buildroot}%{__prefix}/%{name}/src/manage.sh
 

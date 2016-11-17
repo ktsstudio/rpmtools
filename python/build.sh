@@ -59,7 +59,7 @@ if [ $INSTALL_BUILD_REQUIRES -eq 1 ]; then
     yuminstall ${BUILD_REQUIRES}
 fi
 
-rpmbuild -bb ${CURRENT_DIR}/tornado.spec   --define "name ${NAME}" \
+rpmbuild -bb ${CURRENT_DIR}/python.spec   --define "name ${NAME}" \
                                            --define "version ${VERSION}${VERSIONSUFFIX}" \
                                            --define "release ${RELEASE}" \
                                            --define "source ${SOURCE_DIR}" \
