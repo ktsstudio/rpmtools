@@ -1,3 +1,6 @@
+3.6.8
+* Django: version suffix
+
 3.6.7
 * Yii: чистим twig кеш
 

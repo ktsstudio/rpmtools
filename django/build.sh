@@ -9,6 +9,7 @@ BUILD_INFO="${SOURCE_DIR}/build/BUILD_INFO"
 GRUNTTASK="default"
 ADDITIONAL_INIT_SCRIPTS=()
 AUTO_MIGRATE=1
+VERSIONSUFFIX=""
 ENABLE_CELERYCAM=1
 
 VERSION=$(sed '1q;d' ${BUILD_INFO})
@@ -20,14 +21,16 @@ BUILDREQUIRES=$(sed '5q;d' ${BUILD_INFO})
 WSGI=$(sed '6q;d' ${BUILD_INFO})
 KEYS=$(sed '7q;d' ${BUILD_INFO})
 
+
 function opts {
-        TEMP=`getopt -o v:g:b:h -l virtualenv:,grunttask:,build:,add-init:,help,disable-auto-migrate,disable-celerycam -- "$@"`
+        TEMP=`getopt -o v:g:b:h -l virtualenv:,grunttask:,build:,add-init:,versionsuffix:,help,disable-auto-migrate,disable-celerycam -- "$@"`
         eval set -- "$TEMP"
         while true; do
             case "$1" in
                 -b|--build) RELEASE=$2; shift 2 ;;
                 -g|--grunttask) GRUNTTASK=$2; shift 2 ;;
                 -v|--virtualenv) VIRTUALENV=$2; shift 2 ;;
+                --versionsuffix) VERSIONSUFFIX=$2; shift 2 ;;
                 --add-init) ADDITIONAL_INIT_SCRIPTS+=($2); shift 2;;
                 --disable-auto-migrate) AUTO_MIGRATE=0; shift 1;;
                 --disable-celerycam) ENABLE_CELERYCAM=0; shift 1;;
@@ -64,7 +67,7 @@ yuminstall ${BUILDREQUIRES}
 
 rpmbuild -bb ${CURRENT_DIR}/django.spec \
                    --define "name $NAME" \
-                   --define "version $VERSION" \
+                   --define "version $VERSION$VERSIONSUFFIX" \
                    --define "release $RELEASE" \
                    --define "source ${SOURCE_DIR}" \
                    --define "summary $SUMMARY" \
