@@ -1,3 +1,7 @@
+3.6.9
+* Django, Tornado: замена в versionsuffix - на _
+* Django: фикс указания пути до питона (--python в пути до virtualenv)
+
 3.6.8
 * Django: version suffix
 

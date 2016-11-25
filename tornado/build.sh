@@ -34,7 +34,8 @@ function opts {
         done
 }
 opts "$@"
-export FULLVERSION="${VERSION}-${RELEASE}"
+
+VERSIONSUFFIX=$(echo $VERSIONSUFFIX | tr '-' '_')
 
 cat ${CURRENT_DIR}/../logo.txt
 

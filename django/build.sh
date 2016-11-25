@@ -41,18 +41,19 @@ function opts {
         done
 }
 
-params=$@
+params=()
 for j in $KEYS;
 do
     params+=($j)
 done
-opts ${params[@]}
 
+opts "$@"
+opts "${params[@]}"
+
+VERSIONSUFFIX=$(echo $VERSIONSUFFIX | tr '-' '_')
 if [ -z ${ADDITIONAL_INIT_SCRIPTS} ]; then
     ADDITIONAL_INIT_SCRIPTS=0
 fi
-
-export FULLVERSION="${VERSION}-${RELEASE}"
 
 cat ${CURRENT_DIR}/../logo.txt
 
