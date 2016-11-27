@@ -27,6 +27,9 @@ INSTALL_BUILD_REQUIRES=1
 [[ $VIRTUALENV == '' ]] && VIRTUALENV=$(which virtualenv)
 [[ $COMMAND == '' ]] && COMMAND="exit 0"
 
+SPECFILE=$(${META} specfile)
+[[ $SPECFILE == '' ]] && SPECFILE="${CURRENT_DIR}/python.spec"
+
 function opts {
         TEMP=`getopt -o c:s:v:b:f:h --long command:,supervisor:,virtualenv:,build:,versionsuffix:,help,disable-build-requires -- "$@"`
         eval set -- "$TEMP"

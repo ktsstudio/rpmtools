@@ -12,6 +12,9 @@ summary=$(${META} description)
 REQUIRES=$(${META} yumDependencies)
 BUILDREQUIRES="$(${META} yumBuildDependencies) python-argparse"
 
+SPECFILE=$(${META} specfile)
+[[ $SPECFILE == '' ]] && SPECFILE="${CURRENT_DIR}/node.spec"
+
 function opts {
         TEMP=`getopt -o b:h --long build:,help -- "$@"`
         eval set -- "${TEMP}"

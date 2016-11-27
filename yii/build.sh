@@ -15,6 +15,9 @@ BUILDREQUIRES="$(${META} yumBuildDependencies) python-argparse"
 COMMAND=$(${META} command)
 [[ ${COMMAND} == '' ]] && COMMAND="exit 0"
 
+SPECFILE=$(${META} specfile)
+[[ $SPECFILE == '' ]] && SPECFILE="${CURRENT_DIR}/yii.spec"
+
 function opts {
         TEMP=`getopt -o b:c:h --long build:,command:,help -- "$@"`
         eval set -- "${TEMP}"
@@ -40,7 +43,7 @@ echo
 
 yuminstall ${BUILDREQUIRES}
 
-rpmbuild -bb ${CURRENT_DIR}/yii.spec \
+rpmbuild -bb ${SPECFILE} \
                    --define "name $NAME" \
                    --define "version $VERSION" \
                    --define "release $RELEASE" \
