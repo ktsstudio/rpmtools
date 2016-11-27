@@ -49,8 +49,6 @@ if [ -z ${ADDITIONAL_INIT_SCRIPTS} ]; then
     ADDITIONAL_INIT_SCRIPTS=0
 fi
 
-cat ${CURRENT_DIR}/../logo.txt
-
 echo
 echo
 echo "Building $NAME rpm, version $VERSION, release $RELEASE"

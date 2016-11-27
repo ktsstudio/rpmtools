@@ -23,7 +23,6 @@ if [ -d %{name} ]; then
     rm -rf %{name}
 fi
 
-
 %pre
 /usr/bin/getent group %{name} || /usr/sbin/groupadd -r %{name}
 /usr/bin/getent passwd %{name} || /usr/sbin/useradd -r -d /opt/%{name}/ -s /bin/false %{name} -g %{name}

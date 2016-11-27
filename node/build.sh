@@ -24,10 +24,8 @@ function opts {
             esac
         done
 }
-opts "$@"
-export FULLVERSION="${VERSION}-${RELEASE}"
 
-cat ${CURRENT_DIR}/../logo.txt
+opts "$@"
 
 echo
 echo
@@ -38,7 +36,7 @@ echo
 
 yuminstall ${BUILDREQUIRES}
 
-rpmbuild -bb ${CURRENT_DIR}/node.spec \
+rpmbuild -bb ${SPECFILE} \
                    --define "name $NAME" \
                    --define "version $VERSION" \
                    --define "release $RELEASE" \

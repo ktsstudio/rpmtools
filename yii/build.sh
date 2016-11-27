@@ -28,10 +28,8 @@ function opts {
             esac
         done
 }
-opts "$@"
-export FULLVERSION="${VERSION}-${RELEASE}"
 
-cat ${CURRENT_DIR}/../logo.txt
+opts "$@"
 
 echo
 echo

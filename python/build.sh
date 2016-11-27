@@ -43,9 +43,8 @@ function opts {
             esac
         done
 }
-opts "$@"
 
-cat ${CURRENT_DIR}/../logo.txt
+opts "$@"
 
 echo
 echo
@@ -59,14 +58,15 @@ if [ $INSTALL_BUILD_REQUIRES -eq 1 ]; then
     yuminstall ${BUILD_REQUIRES}
 fi
 
-rpmbuild -bb ${CURRENT_DIR}/python.spec   --define "name ${NAME}" \
-                                           --define "version ${VERSION}${VERSIONSUFFIX}" \
-                                           --define "release ${RELEASE}" \
-                                           --define "source ${SOURCE_DIR}" \
-                                           --define "summary ${SUMMARY}" \
-                                           --define "requires ${REQUIRES}" \
-                                           --define "buildrequires ${BUILD_REQUIRES}" \
-                                           --define "command ${COMMAND}" \
-                                           --define "virtualenv ${VIRTUALENV}" \
-                                           --define "meta ${META}" \
-                                           --define "$([ ${INIT_PRESENTS} -eq 1 ] && echo 'initPresents' || echo 'initAbsent' ) 1"
+rpmbuild -bb ${SPECFILE} \
+                           --define "name ${NAME}" \
+                           --define "version ${VERSION}${VERSIONSUFFIX}" \
+                           --define "release ${RELEASE}" \
+                           --define "source ${SOURCE_DIR}" \
+                           --define "summary ${SUMMARY}" \
+                           --define "requires ${REQUIRES}" \
+                           --define "buildrequires ${BUILD_REQUIRES}" \
+                           --define "command ${COMMAND}" \
+                           --define "virtualenv ${VIRTUALENV}" \
+                           --define "meta ${META}" \
+                           --define "$([ ${INIT_PRESENTS} -eq 1 ] && echo 'initPresents' || echo 'initAbsent' ) 1"

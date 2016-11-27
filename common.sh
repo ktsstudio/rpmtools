@@ -19,3 +19,5 @@ function yuminstall {
         fi
     fi
 }
+
+cat ${CURRENT_DIR}/../logo.txt
