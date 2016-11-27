@@ -4,10 +4,7 @@ SOURCE_DIR="${CURRENT_DIR}/../../"
 META=$(echo "python ${CURRENT_DIR}/../meta.py --file ${SOURCE_DIR}/build/package.json --query")
 
 INIT_PRESENTS=0
-if [ "$(${META} template)" == 'supervisor' ]; then
-    INIT_PRESENTS=1
-fi
-if [ "$(${META} initScripts)" != ''  ]; then
+if [[ "$(${META} template)" != '' || "$(${META} initScripts)" != ''  ]]; then
     INIT_PRESENTS=1
 fi
 
