@@ -74,9 +74,6 @@ else
     echo 'Not found requirements, skipped...'
 fi
 
-find %{name}/ -type f -name "*.py[co]" -delete
-find %{name}/ -type f -exec sed -i "s:%{_builddir}:%{__prefix}:" {} \;
-
 pushd %{name}/src
     gruntCwd=$(%{meta} gruntCwd)
     if [ "${gruntCwd}" != '' ]
@@ -143,6 +140,9 @@ pushd %{name}/src
         rm -rf ${i}
     done
 popd
+
+find %{name}/ -type f -name "*.py[co]" -delete
+find %{name}/ -type f -exec sed -i "s:%{_builddir}:%{__prefix}:" {} \;
 
 %install
 mkdir -p %{buildroot}%{__prefix}/%{name}
