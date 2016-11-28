@@ -133,14 +133,10 @@ pushd %{name}/src
 popd
 
 pushd %{name}/src
-    %{meta} commands | while read i; do
+    %{meta} buildCmds | while read i; do
         echo "Execute: ${i}"
         /bin/sh -c "${i}" || exit 1
     done
-
-    %if %{?command:1}%{!?command:0}
-      /bin/sh -c '%{command}' || exit 1
-    %endif
 
     for i in $(%{meta} excludeFiles); do
         echo "Remove files: ${i}"
@@ -210,6 +206,7 @@ fi
 if [ ! -e %{buildroot}%{__prefix}/%{name}/src/manage.sh ]; then
     cp -r %{buildroot}%{__prefix}/%{name}/src/rpmtools/python/manage.sh %{buildroot}%{__prefix}/%{name}/src/manage.sh
 fi
+
 chmod 755 %{buildroot}%{__prefix}/%{name}/src/manage.sh
 
 mkdir -p %{buildroot}%{_bindir}
@@ -246,6 +243,8 @@ else
     mkdir -p /var/log/%{name}
     chown -R %{name}:%{name} /var/log/%{name}
 fi
+
+/bin/bash -c "%{afterInstallCmd}" || true
 
 %preun
 if [ $1 -eq 0 ]; then

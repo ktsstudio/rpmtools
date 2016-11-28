@@ -4,7 +4,7 @@ SOURCE_DIR="${CURRENT_DIR}/../../"
 META=$(echo "python ${CURRENT_DIR}/../meta.py --file ${SOURCE_DIR}/build/package.json --query")
 
 INIT_PRESENTS=0
-if [[ "$(${META} template)" != '' || "$(${META} initScripts)" != ''  ]]; then
+if [[ "$(${META} template)" != '' || "$(${META} initScripts)" != '' ]]; then
     INIT_PRESENTS=1
 fi
 
@@ -18,21 +18,20 @@ SUMMARY=$(${META} description)
 REQUIRES=$(${META} yumDependencies)
 BUILD_REQUIRES="$(${META} yumBuildDependencies) python-argparse"
 VIRTUALENV=$(${META} virtualenv)
-COMMAND=$(${META} command)
 INSTALL_BUILD_REQUIRES=1
+AFTER_INSTALL_CMD=$(${META} afterInstallCmd)
 
-[[ $VIRTUALENV == '' ]] && VIRTUALENV=$(which virtualenv)
-[[ $COMMAND == '' ]] && COMMAND="exit 0"
+[[ ${VIRTUALENV} == '' ]] && VIRTUALENV=$(which virtualenv)
+[[ ${AFTER_INSTALL_CMD} == '' ]] && AFTER_INSTALL_CMD="exit 0"
 
 SPECFILE=$(${META} specfile)
 [[ $SPECFILE == '' ]] && SPECFILE="${CURRENT_DIR}/python.spec"
 
 function opts {
-        TEMP=`getopt -o c:s:v:b:f:h --long command:,supervisor:,virtualenv:,build:,versionsuffix:,help,disable-build-requires -- "$@"`
+        TEMP=`getopt -o c:s:v:b:f:h --long supervisor:,virtualenv:,build:,versionsuffix:,help,disable-build-requires -- "$@"`
         eval set -- "$TEMP"
         while true; do
             case "$1" in
-                -c|--command) COMMAND=$2; shift 2 ;;
                 -h|--help) echo 'help under constuction' ; shift 1;;
                 -b|--build) RELEASE=$2; shift 2 ;;
                 -f|--versionsuffix) VERSIONSUFFIX=$2; shift 2 ;;
@@ -54,7 +53,7 @@ echo "Build requires: ${BUILD_REQUIRES}"
 echo "Virtualenv: ${VIRTUALENV}"
 echo
 
-if [ $INSTALL_BUILD_REQUIRES -eq 1 ]; then
+if [ ${INSTALL_BUILD_REQUIRES} -eq 1 ]; then
     yuminstall ${BUILD_REQUIRES}
 fi
 
@@ -66,7 +65,7 @@ rpmbuild -bb ${SPECFILE} \
                            --define "summary ${SUMMARY}" \
                            --define "requires ${REQUIRES}" \
                            --define "buildrequires ${BUILD_REQUIRES}" \
-                           --define "command ${COMMAND}" \
                            --define "virtualenv ${VIRTUALENV}" \
                            --define "meta ${META}" \
-                           --define "$([ ${INIT_PRESENTS} -eq 1 ] && echo 'initPresents' || echo 'initAbsent' ) 1"
+                           --define "$([ ${INIT_PRESENTS} -eq 1 ] && echo 'initPresents' || echo 'initAbsent' ) 1" \
+                           --define "afterInstallCmd ${AFTER_INSTALL_CMD}"
