@@ -75,6 +75,10 @@ else
 fi
 
 pushd %{name}/src
+    if [ "$(%{meta} template)" == 'django' ]; then
+        ../env/bin/python manage.py collectstatic --noinput
+    fi
+
     gruntCwd=$(%{meta} gruntCwd)
     if [ "${gruntCwd}" != '' ]
     then
@@ -153,19 +157,6 @@ mv %{name} %{buildroot}%{__prefix}/
 
 [ -d %{buildroot}%{__prefix}/%{name}/env/lib64 ] && rm -rf %{buildroot}%{__prefix}/%{name}/env/lib64 && ln -sf %{__prefix}/%{name}/env/lib %{buildroot}%{__prefix}/%{name}/env/lib64
 
-%{meta} initScripts | while read i; do
-    echo $i
-    %if 0%{?rhel}  == 6
-        %{__install} -p -D -m 0755 %{buildroot}%{__prefix}/%{name}/src/${i} %{buildroot}%{_initrddir}/$(basename ${i})
-        sed -i 's/#NAME#/%{name}/g' %{buildroot}%{_initrddir}/$(basename ${i})
-    %endif
-
-    %if 0%{?rhel}  == 7
-        %{__install} -p -D -m 0755 %{buildroot}%{__prefix}/%{name}/src/${i} %{buildroot}/usr/lib/systemd/system/$(basename ${i})
-        sed -i 's/#NAME#/%{name}/g' %{buildroot}/usr/lib/systemd/system/$(basename ${i})
-    %endif
-done
-
 # templates
 if [ "$(%{meta} template)" == 'supervisor' ]; then
     mkdir -p %{buildroot}%{_sysconfdir}/%{name}/programs
@@ -197,6 +188,48 @@ if [ "$(%{meta} template)" == 'supervisor' ]; then
     %endif
 fi
 
+if [ "$(%{meta} template)" == 'django' ]; then
+    %if 0%{?rhel} == 6
+        WSGIPKG=$(%{meta} wsgiApp)
+        if [ "${WSGIPKG}" == '' ]; then
+            WSGIPKG="%{name}"
+        fi
+
+        %{__install} -p -D -m 0755 %{buildroot}%{__prefix}/%{name}/src/rpmtools/python/templates/django/init/c6/gunicorn.sh %{buildroot}%{_initrddir}/%{name}-gunicorn
+        sed -i 's/#NAME#/%{name}/g' %{buildroot}%{_initrddir}/%{name}-gunicorn
+        sed -i "s/#WSGIPKG#/${WSGIPKG}/g" %{buildroot}%{_initrddir}/%{name}-gunicorn
+
+        %{__install} -p -D -m 0755 %{buildroot}%{__prefix}/%{name}/src/rpmtools/python/templates/django/init/c6/celeryd.sh %{buildroot}%{_initrddir}/%{name}-celeryd
+        sed -i 's/#NAME#/%{name}/g' %{buildroot}%{_initrddir}/%{name}-celeryd
+    %endif
+
+    # configs
+    mkdir -p %{buildroot}%{_sysconfdir}/%{name}
+    %{__install} -p -D -m 0644 %{buildroot}%{__prefix}/%{name}/src/rpmtools/python/templates/django/conf/gunicorn.conf %{buildroot}%{_sysconfdir}/%{name}/gunicorn.conf
+    sed -i 's/#NAME#/%{name}/g' %{buildroot}%{_sysconfdir}/%{name}/gunicorn.conf
+
+    if [ -f %{buildroot}%{__prefix}/%{name}/src/build/default.conf ]; then
+        %{__install} -p -D -m 0644 %{buildroot}%{__prefix}/%{name}/src/build/default.conf %{buildroot}%{_sysconfdir}/%{name}/%{name}.conf
+    fi
+
+    # bin
+    mkdir -p %{buildroot}%{_bindir}
+    ln -s %{__prefix}/%{name}/src/rpmtools/django/manage.sh %{buildroot}%{_bindir}/%{name}
+fi
+
+%{meta} initScripts | while read i; do
+    echo $i
+    %if 0%{?rhel}  == 6
+        %{__install} -p -D -m 0755 %{buildroot}%{__prefix}/%{name}/src/${i} %{buildroot}%{_initrddir}/$(basename ${i})
+        sed -i 's/#NAME#/%{name}/g' %{buildroot}%{_initrddir}/$(basename ${i})
+    %endif
+
+    %if 0%{?rhel}  == 7
+        %{__install} -p -D -m 0755 %{buildroot}%{__prefix}/%{name}/src/${i} %{buildroot}/usr/lib/systemd/system/$(basename ${i})
+        sed -i 's/#NAME#/%{name}/g' %{buildroot}/usr/lib/systemd/system/$(basename ${i})
+    %endif
+done
+
 # replace etc folder
 if [ -d %{buildroot}%{__prefix}/%{name}/src/build/etc ]; then
     rm -rf %{buildroot}%{_sysconfdir}/%{name}
@@ -214,7 +247,9 @@ ln -sf %{__prefix}/%{name}/src/manage.sh %{buildroot}%{_bindir}/%{name}
 
 rm -rf %{buildroot}%{__prefix}/%{name}/src/rpmtools
 rm -rf %{buildroot}%{__prefix}/%{name}/src/env
-
+rm -rf %{buildroot}%{__prefix}/%{name}/src/build
+rm -rf %{buildroot}%{__prefix}/%{name}/src/local_settings.py
+rm -rf %{buildroot}%{__prefix}/%{name}/src/node_modules
 
 %post
 if [ $1 -gt 1 ]; then
@@ -222,16 +257,14 @@ if [ $1 -gt 1 ]; then
     mkdir -p /var/log/%{name}
 
     find %{__prefix}/%{name} -type f -name "*.py[co]" -delete
-
-    %if 0%{?rhel}  == 7
-    /bin/systemctl daemon-reload
-    %endif
 else
     echo "Install"
 
     %if 0%{?rhel}  == 6
-    /sbin/chkconfig --list %{name} > /dev/null 2>&1 || /sbin/chkconfig --add %{name}
-    /sbin/chkconfig %{name} on
+        if [ -e /etc/init.d/%{name} ]; then
+            /sbin/chkconfig --list %{name} > /dev/null 2>&1 || /sbin/chkconfig --add %{name}
+            /sbin/chkconfig %{name} on
+        fi
     %endif
 
     %if 0%{?rhel}  == 7
@@ -243,6 +276,10 @@ else
     mkdir -p /var/log/%{name}
     chown -R %{name}:%{name} /var/log/%{name}
 fi
+
+%if 0%{?rhel}  == 7
+    /bin/systemctl daemon-reload
+%endif
 
 /bin/bash -c "%{afterInstallCmd}" || true
 
