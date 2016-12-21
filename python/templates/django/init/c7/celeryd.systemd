@@ -7,7 +7,7 @@ Type=simple
 Environment=LANG=en_US.UTF-8
 Environment=LC_ALL=en_US.UTF-8
 Environment=PYTHONPATH=/opt/#NAME#/src
-ExecStart=/opt/#NAME#/env/bin/celery multi start worker -A application -EB -c 5 -l INFO --logfile=/var/log/#NAME#/celeryd.log --uid=$(id -u #NAME#) --gid=$(id -g #NAME#) --workdir=/opt/#NAME#/src
+ExecStart=/opt/#NAME#/env/bin/python /opt/#NAME#/env/bin/celery -A #NAME# worker -EB -c 5 -l INFO --logfile=/var/log/#NAME#/celeryd.log --uid=$(id -u #NAME#) --gid=$(id -g #NAME#) --workdir=/opt/#NAME#/src
 ExecReload=/bin/kill -HUP $MAINPID
 LimitNOFILE=1048000
 LimitNPROC=32768
