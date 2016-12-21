@@ -189,18 +189,27 @@ if [ "$(%{meta} template)" == 'supervisor' ]; then
 fi
 
 if [ "$(%{meta} template)" == 'django' ]; then
-    %if 0%{?rhel} == 6
-        WSGIPKG=$(%{meta} wsgiApp)
-        if [ "${WSGIPKG}" == '' ]; then
-            WSGIPKG="%{name}"
-        fi
+    WSGIPKG=$(%{meta} wsgiApp)
+    if [ "${WSGIPKG}" == '' ]; then
+        WSGIPKG="%{name}"
+    fi
 
+    %if 0%{?rhel} == 6
         %{__install} -p -D -m 0755 %{buildroot}%{__prefix}/%{name}/src/rpmtools/python/templates/django/init/c6/gunicorn.sh %{buildroot}%{_initrddir}/%{name}-gunicorn
         sed -i 's/#NAME#/%{name}/g' %{buildroot}%{_initrddir}/%{name}-gunicorn
         sed -i "s/#WSGIPKG#/${WSGIPKG}/g" %{buildroot}%{_initrddir}/%{name}-gunicorn
 
         %{__install} -p -D -m 0755 %{buildroot}%{__prefix}/%{name}/src/rpmtools/python/templates/django/init/c6/celeryd.sh %{buildroot}%{_initrddir}/%{name}-celeryd
         sed -i 's/#NAME#/%{name}/g' %{buildroot}%{_initrddir}/%{name}-celeryd
+    %endif
+
+    %if 0%{?rhel} == 7
+        %{__install} -p -D -m 0755 %{buildroot}%{__prefix}/%{name}/src/rpmtools/python/templates/django/init/c7/gunicorn.systemd %{buildroot}/usr/lib/systemd/system/%{name}-gunicorn.service
+        sed -i 's/#NAME#/%{name}/g' %{buildroot}/usr/lib/systemd/system/%{name}-gunicorn.service
+        sed -i "s/#WSGIPKG#/${WSGIPKG}/g" %{buildroot}/usr/lib/systemd/system/%{name}-gunicorn.service
+
+        %{__install} -p -D -m 0755 %{buildroot}%{__prefix}/%{name}/src/rpmtools/python/templates/django/init/c7/celeryd.systemd %{buildroot}/usr/lib/systemd/system/%{name}-celeryd.service
+        sed -i 's/#NAME#/%{name}/g' %{buildroot}/usr/lib/systemd/system/%{name}-celeryd.service
     %endif
 
     # configs
