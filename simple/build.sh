@@ -10,7 +10,7 @@ PUBLIC_DIR_NAME="public"
 NAME=$(${META} name)
 VERSION_SUFFIX=""
 SUMMARY=$(${META} name)
-VERSION=$(${META} version)
+VERSION=$(${META} version | tr '-' '.')
 RELEASE=$(date +%s)
 
 GRUNTTASK=$(${META} grunttask)
