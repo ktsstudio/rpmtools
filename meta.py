@@ -37,7 +37,7 @@ class JsonParser(object):
             else:
                 acc += letter
         result.append(acc)
-        for i in xrange(len(result)):
+        for i in range(len(result)):
             result[i] = result[i].replace('\\.', '.')
         return result
 
@@ -90,5 +90,7 @@ if __name__ == '__main__':
                 print(' '.join([i.replace('.', '\.') if args.escape else i for i in value.keys()]))
             else:
                 print(value)
+        elif isinstance(value, bool):
+            print(str(value).lower())
         else:
             print(value)

@@ -1,5 +1,6 @@
 #!/bin/sh
-name="PROJECT_NAME"
+name="#NAME#"
+service="${name}-gunicorn"
 
 # gunicorn startup script
 #
@@ -7,27 +8,23 @@ name="PROJECT_NAME"
 # processname: $prog
 # config: /etc/sysconfig/$prog
 # pidfile: /var/run/$prog.pid
-# description: $prog
+# description: $service
 
-# Setting `prog` here allows you to symlink this init script, making it easy to run multiple processes on the system.
-prog="$(basename $0)"
 
-# Source function library.
 . /etc/rc.d/init.d/functions
 
-# Also look at sysconfig; this is where environmental variables should be set on RHEL systems.
-[ -f "/etc/sysconfig/$prog" ] && . /etc/sysconfig/$prog
+[ -f "/etc/sysconfig/$service" ] && . /etc/sysconfig/$service
 
-pidfile="/var/run/${prog}.pid"
-lockfile="/var/lock/subsys/${prog}"
+pidfile="/var/run/${service}.pid"
+lockfile="/var/lock/subsys/${service}"
 export LANG=ru_RU.UTF-8
 RETVAL=0
 
 start() {
-    echo -n $"Starting $prog: "
+    echo -n $"Starting $service: "
     source /opt/${name}/env/bin/activate
     cd /opt/${name}/src/
-    gunicorn -c /etc/${name}/gunicorn.conf -p ${pidfile} WSGI_APPLICATION.wsgi:application
+    gunicorn -c /etc/${name}/gunicorn.conf -p ${pidfile} #WSGIPKG#.wsgi:application
     deactivate
     RETVAL=$?
     [ $RETVAL = 0 ] && { touch ${lockfile}; success; }
@@ -36,15 +33,15 @@ start() {
 }
 
 stop() {
-	echo -n $"Stopping $prog: "
-	killproc -p ${pidfile} ${prog}
+	echo -n $"Stopping $service: "
+	killproc -p ${pidfile} ${service}
 	RETVAL=$?
 	echo
 	[ $RETVAL = 0 ] && rm -f ${lockfile} ${pidfile}
 }
 
 rh_status() {
-	status -p ${pidfile} ${prog}
+	status -p ${pidfile} ${service}
 }
 
 # See how we were called.

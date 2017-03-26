@@ -12,6 +12,9 @@ summary=$(${META} description)
 REQUIRES=$(${META} yumDependencies)
 BUILDREQUIRES="$(${META} yumBuildDependencies) python-argparse"
 
+SPECFILE=$(${META} specfile)
+[[ $SPECFILE == '' ]] && SPECFILE="${CURRENT_DIR}/node.spec"
+
 function opts {
         TEMP=`getopt -o b:h --long build:,help -- "$@"`
         eval set -- "${TEMP}"
@@ -24,10 +27,8 @@ function opts {
             esac
         done
 }
-opts "$@"
-export FULLVERSION="${VERSION}-${RELEASE}"
 
-cat ${CURRENT_DIR}/../logo.txt
+opts "$@"
 
 echo
 echo
@@ -38,7 +39,7 @@ echo
 
 yuminstall ${BUILDREQUIRES}
 
-rpmbuild -bb ${CURRENT_DIR}/node.spec \
+rpmbuild -bb ${SPECFILE} \
                    --define "name $NAME" \
                    --define "version $VERSION" \
                    --define "release $RELEASE" \

@@ -1,0 +1,18 @@
+[Unit]
+Description=#NAME# celery
+After=network.target
+
+[Service]
+Type=simple
+User=#NAME#
+Group=#NAME#
+Environment=LANG=en_US.UTF-8
+Environment=LC_ALL=en_US.UTF-8
+Environment=PYTHONPATH=/opt/#NAME#/src
+ExecStart=/opt/#NAME#/env/bin/python /opt/#NAME#/env/bin/celery -A #NAME# worker -EB -c 5 -l INFO --logfile=/var/log/#NAME#/celeryd.log --workdir=/opt/#NAME#/src -s /var/run/#NAME#/beat.db
+ExecReload=/bin/kill -HUP $MAINPID
+LimitNOFILE=1048000
+LimitNPROC=32768
+
+[Install]
+WantedBy=multi-user.target

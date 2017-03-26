@@ -10,12 +10,14 @@ PUBLIC_DIR_NAME="public"
 NAME=$(${META} name)
 VERSION_SUFFIX=""
 SUMMARY=$(${META} name)
-VERSION=$(${META} version)
+VERSION=$(${META} version | tr '-' '.')
 RELEASE=$(date +%s)
 
 GRUNTTASK=$(${META} grunttask)
 [[ $GRUNTTASK == '' ]] && GRUNTTASK="default"
 
+SPECFILE=$(${META} specfile)
+[[ $SPECFILE == '' ]] && SPECFILE="${CURRENT_DIR}/simple.spec"
 
 function opts {
         TEMP=`getopt -o g:s:b:h:c:p --long grunttask:,versionsuffix:,build:,command:,public:,help -- "$@"`
@@ -33,10 +35,8 @@ function opts {
             esac
         done
 }
-opts "$@"
-export FULLVERSION="${VERSION}-${RELEASE}"
 
-cat ${CURRENT_DIR}/../logo.txt
+opts "$@"
 
 echo
 echo
@@ -45,7 +45,7 @@ echo "Requires: $REQUIRES"
 echo "Public dirname: $PUBLIC_DIR_NAME"
 echo
 
-rpmbuild -bb ${CURRENT_DIR}/simple.spec \
+rpmbuild -bb ${SPECFILE} \
                    --define "name $NAME" \
                    --define "version $VERSION$VERSION_SUFFIX" \
                    --define "release $RELEASE" \

@@ -1,24 +1,21 @@
 #!/bin/sh
-name="PROJECT_NAME"
+name="#NAME#"
+service="${name}-celeryd"
+
 # celeryd startup script
 #
 # chkconfig: - 85 15
 # processname: $prog
 # config: /etc/sysconfig/$prog
 # pidfile: /var/run/${name}/$prog.pid
-# description: $prog
+# description: $service
 
-# Setting `prog` here allows you to symlink this init script, making it easy to run multiple processes on the system.
-prog="$(basename $0)"
-
-# Source function library.
 . /etc/rc.d/init.d/functions
 
-# Also look at sysconfig; this is where environmental variables should be set on RHEL systems.
-[ -f "/etc/sysconfig/$prog" ] && . /etc/sysconfig/$prog
+[ -f "/etc/sysconfig/$service" ] && . /etc/sysconfig/$service
 
-pidfile="/var/run/${name}/${prog}.pid"
-lockfile="/var/lock/subsys/${prog}"
+pidfile="/var/run/${name}/${service}.pid"
+lockfile="/var/lock/subsys/${service}"
 
 source /opt/${name}/env/bin/activate
 bin="/usr/bin/${name}"
@@ -26,36 +23,34 @@ opts="multi start worker -A application -EB --pidfile=${pidfile} -c 5 -l INFO --
 
 RETVAL=0
 
-
 start() {
-	echo -n $"Starting $prog: "
+	echo -n $"Starting $service: "
 	celery ${opts}
 	RETVAL=$?
 	[ $RETVAL = 0 ] && { touch ${lockfile}; success; }
         echo
-	return $RETVAL
+	return ${RETVAL}
 }
 
 stop() {
-	echo -n $"Stopping $prog: "
+	echo -n $"Stopping $service: "
 	celery multi stopwait worker --pidfile=${pidfile}
 	RETVAL=$?
 	echo
-	[ $RETVAL = 0 ] && rm -f ${lockfile} ${pidfile}
+	[ ${RETVAL} = 0 ] && rm -f ${lockfile} ${pidfile}
 }
 
 restart() {
-    echo -n $"Restarting $prog; "
+    echo -n $"Restarting $service; "
     celery multi restart worker ${opts}
 	RETVAL=$?
-	return $RETVAL
+	return ${RETVAL}
 }
 
 rh_status() {
-	status -p ${pidfile} ${prog}
+	status -p ${pidfile} ${service}
 }
 
-# See how we were called.
 case "$1" in
 	start)
 		rh_status > /dev/null 2>&1 && exit 0
@@ -83,4 +78,4 @@ case "$1" in
 		RETVAL=2
 esac
 
-exit $RETVAL
+exit ${RETVAL}
