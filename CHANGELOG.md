@@ -1,3 +1,6 @@
+4.1.0
+* Yii: поддержка composer, миграция функционала из Python
+
 4.0.0
 * Django, Tornado -> Python
 

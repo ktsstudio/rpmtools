@@ -78,17 +78,50 @@ then
     fi
 fi
 
-if [ -e "Gruntfile.js" ]
+if [ -e "composer.json" ]
 then
-    grunt || exit 1
+    HASH=$(cat composer.json | grep -v 'version' | md5sum | awk '{ print $1 }')
+    CACHED_COMPOSER="/tmp/composer_${HASH}.tar"
+    if [ -e "${CACHED_COMPOSER}" ]
+    then
+      echo "Found cached bower_components: ${CACHED_COMPOSER}, use it"
+      tar xf ${CACHED_COMPOSER} ./
+    else
+      echo "No found cached vendor, download..."
+      composer install || exit 1
+      if [ -e "./vendor" ]
+      then
+        echo "Save vendor into cache: ${CACHED_COMPOSER}"
+        tar cf ${CACHED_COMPOSER} ./vendor || true
+      else
+        echo "vendor not found, not save"
+      fi
+    fi
 fi
 
-%if %{?command:1}%{!?command:0}
-  /bin/sh -c '%{command}' || exit 1
-%endif
+%{meta} buildCmds | while read i; do
+    echo "Execute: ${i}"
+    /bin/sh -c "${i}" || exit 1
+done
+
+for i in $(%{meta} excludeFiles); do
+    echo "Remove files: ${i}"
+    rm -rf ${i}
+done
 
 %install
 mkdir -p %{buildroot}%{__prefix}/%{name}
+mkdir -p %{buildroot}%{_sysconfdir}/%{name}
+
+cat > %{buildroot}%{_sysconfdir}/%{name}/%{name}.php <<EOF
+<?php
+
+return [
+    'debug' => false
+];
+
+EOF
+
 
 files=$(%{meta} files --keys)
 for file in $files; do
@@ -100,15 +133,10 @@ echo %{version} > %{buildroot}%{__prefix}/%{name}/version.txt
 
 %post
 mkdir -p /var/log/%{name}
-mkdir -p /var/lib/%{name}/runtime
+mkdir -p /var/run/%{name}
+rm -rf /var/run/%{name}/*
 
-#temp fix
-chmod -R 777 /var/log/%{name}
-chmod -R 777 /var/lib/%{name}/runtime
-chown -R %{name}:%{name} /var/log/%{name}
-chown -R %{name}:%{name} /var/lib/%{name}/runtime
-
-rm -rf /var/lib/gdekuda/runtime/twig_cache/
+/bin/bash -c "%{afterInstallCmd}" || true
 
 %preun
 
@@ -118,3 +146,5 @@ rm -rf %{buildroot}
 %files
 %defattr(-,root,root)
 %{__prefix}/%{name}
+
+%config(noreplace) %{_sysconfdir}/%{name}
