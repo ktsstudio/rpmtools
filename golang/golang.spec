@@ -76,11 +76,14 @@ pushd %{gopath}/src/%{gopackage}
     fi
     
     # Building
-    go build
+    %{meta} goMain | while read i; do
+        echo "Executing: go build ${i}"
+        go build -o "%{__prefix}/%{name}/bin/`basename ${i%.*}`" "${i}" || exit 1
+    done
+
 popd
 
 cp -r '%{gopath}/src/%{gopackage}' %{name}/src
-mv '%{name}/src/%{name}' %{name}/bin  # move built binary
 
 # removed grunt and bower stuff for now
 
