@@ -31,14 +31,12 @@ fi
 
 # Setting up GOPATH and project location for building
 mkdir -p %{gopath}/src/%{gopackage}
+mkdir -p %{gopath}/bin
+rm -rf %{gopath}/bin/*
+
 cp -r '%{source}' %{gopath}/src/%{gopackage}
 
 mkdir -p %{name}
-mkdir -p %{name}/bin
-rm -rf %{name}/src/.git*
-rm -rf %{name}/src/rpmtools/.git*
-rm -rf %{name}/src/.idea*
-rm -rf %{gopath}/bin/*
 
 pushd %{gopath}/src/%{gopackage}
     VENDORLOCK=$(%{meta} vendorLock)
@@ -85,7 +83,11 @@ pushd %{gopath}/src/%{gopackage}
 popd
 
 cp -r '%{gopath}/src/%{gopackage}' %{name}/src
-cp -r '%{gopath}/bin/*' %{name}/bin
+cp -r '%{gopath}/bin' %{name}/bin
+
+rm -rf %{name}/src/.git*
+rm -rf %{name}/src/rpmtools/.git*
+rm -rf %{name}/src/.idea*
 
 # removed grunt and bower stuff for now
 
