@@ -38,6 +38,7 @@ mkdir -p %{name}/bin
 rm -rf %{name}/src/.git*
 rm -rf %{name}/src/rpmtools/.git*
 rm -rf %{name}/src/.idea*
+rm -rf %{gopath}/bin/*
 
 pushd %{gopath}/src/%{gopackage}
     VENDORLOCK=$(%{meta} vendorLock)
@@ -78,12 +79,13 @@ pushd %{gopath}/src/%{gopackage}
     # Building
     %{meta} goMain | while read i; do
         echo "Executing: go build ${i}"
-        go build -o "%{__prefix}/%{name}/bin/`basename ${i%.*}`" "${i}" || exit 1
+        go build -o "%{gopath}/bin/`basename ${i%.*}`" "${i}" || exit 1
     done
 
 popd
 
 cp -r '%{gopath}/src/%{gopackage}' %{name}/src
+cp -r '%{gopath}/bin/*' %{name}/bin
 
 # removed grunt and bower stuff for now
 
