@@ -38,6 +38,18 @@ cp -r '%{source}' %{gopath}/src/%{gopackage}
 
 mkdir -p %{name}
 
+pushd %{name}/src
+    %{meta} buildCmds | while read i; do
+        echo "Execute: ${i}"
+        /bin/sh -c "${i}" || exit 1
+    done
+
+    for i in $(%{meta} excludeFiles); do
+        echo "Remove files: ${i}"
+        rm -rf ${i}
+    done
+popd
+
 pushd %{gopath}/src/%{gopackage}
     VENDORLOCK=$(%{meta} vendorLock)
     if [ "${VENDORLOCK}" == '' ]; then
@@ -90,18 +102,6 @@ rm -rf %{name}/src/rpmtools/.git*
 rm -rf %{name}/src/.idea*
 
 # removed grunt and bower stuff for now
-
-pushd %{name}/src
-    %{meta} buildCmds | while read i; do
-        echo "Execute: ${i}"
-        /bin/sh -c "${i}" || exit 1
-    done
-
-    for i in $(%{meta} excludeFiles); do
-        echo "Remove files: ${i}"
-        rm -rf ${i}
-    done
-popd
 
 # find %{name}/ -type f -name "*.py[co]" -delete
 find %{name}/ -type f -exec sed -i "s:%{_builddir}:%{__prefix}:" {} \;
