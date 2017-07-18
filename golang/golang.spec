@@ -38,7 +38,7 @@ cp -r '%{source}' %{gopath}/src/%{gopackage}
 
 mkdir -p %{name}
 
-pushd %{name}/src
+pushd %{gopath}/src/%{gopackage}
     %{meta} buildCmds | while read i; do
         echo "Execute: ${i}"
         /bin/sh -c "${i}" || exit 1
