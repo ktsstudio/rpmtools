@@ -126,7 +126,7 @@ for SRC in $(%{meta} copy --keys); do
     DEST=$(%{meta} "copy.$SRC")
     
     echo "Copying $SRC -> $DEST"
-    cp -aR %{buildroot}%{projectlocation}/$SRC %{buildroot}$DEST
+    cp -aR %{buildroot}%{projectlocation}/$SRC %{buildroot}%{__prefix}/%{name}
 done
 
 %{meta} initScripts | while read i; do
