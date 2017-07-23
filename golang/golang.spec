@@ -1,4 +1,5 @@
 %define __prefix /opt
+%define projectlocation %{gopath}/src/%{gopackage}
 %define __spec_install_post /usr/lib/rpm/brp-compress || :
 
 Name: %{name}
@@ -23,22 +24,26 @@ if [ -d %{name} ]; then
     rm -rf %{name}
 fi
 
+if [ -d %{gopath} ]; then
+    echo "Cleaning out stale GOPATH" 1>&2
+    rm -rf %{gopath}
+fi
+
+# Setting up GOPATH and project location for building
+mkdir -p %{gopath}/bin
+mkdir -p %{gopath}/pkg
+mkdir -p %{projectlocation}
+
 %pre
 /usr/bin/getent group %{name} || /usr/sbin/groupadd -r %{name}
 /usr/bin/getent passwd %{name} || /usr/sbin/useradd -r -d /opt/%{name}/ -s /bin/false %{name} -g %{name}
 
 %build
-
-# Setting up GOPATH and project location for building
-mkdir -p %{gopath}/src/%{gopackage}
-mkdir -p %{gopath}/bin
-rm -rf %{gopath}/bin/*
-
 cp -r '%{source}' %{gopath}/src/%{gopackage}
 
-mkdir -p %{name}
+# mkdir -p %{name}
 
-pushd %{gopath}/src/%{gopackage}
+pushd %{projectlocation}
     %{meta} buildCmds | while read i; do
         echo "Execute: ${i}"
         /bin/sh -c "${i}" || exit 1
@@ -50,7 +55,7 @@ pushd %{gopath}/src/%{gopackage}
     done
 popd
 
-pushd %{gopath}/src/%{gopackage}
+pushd %{projectlocation}
     VENDORLOCK=$(%{meta} vendorLock)
     if [ "${VENDORLOCK}" == '' ]; then
         VENDORLOCK="Gopkg.lock"
@@ -87,66 +92,72 @@ pushd %{gopath}/src/%{gopackage}
     fi
     
     # Building
+    mkdir -p %{gopath}/bin/%{name}
     %{meta} goMain | while read i; do
         echo "Executing: go build ${i}"
-        go build -o "%{gopath}/bin/`basename ${i%.*}`" "${i}" || exit 1
+        go build -o "%{gopath}/bin/%{name}/`basename ${i%.*}`" "${i}" || exit 1
     done
 
 popd
 
-cp -r '%{gopath}/src/%{gopackage}' %{name}/src
-cp -r '%{gopath}/bin' %{name}/bin
+#cp -r '%{gopath}/src/%{gopackage}' %{name}/src
+#cp -r '%{gopath}/bin' %{name}/bin
 
-rm -rf %{name}/src/.git*
-rm -rf %{name}/src/rpmtools/.git*
-rm -rf %{name}/src/.idea*
+rm -rf %{projectlocation}/.git*
+rm -rf %{projectlocation}/rpmtools/.git*
+rm -rf %{projectlocation}/.idea*
 
 # removed grunt and bower stuff for now
 
-# find %{name}/ -type f -name "*.py[co]" -delete
-find %{name}/ -type f -exec sed -i "s:%{_builddir}:%{__prefix}:" {} \;
+find %{projectlocation}/ -type f -exec sed -i "s:%{_builddir}:%{__prefix}:" {} \;
 
 
 %install
+# making project root directory
 mkdir -p %{buildroot}%{__prefix}/%{name}
+
+# movinf gopath to buildroot
+mv %{gopath} %{buildroot}%{__prefix}
+
+# config and /var/run
 mkdir -p %{buildroot}%{_sysconfdir}/%{name}
 mkdir -p %{buildroot}/var/run/%{name}
 
-mv %{name} %{buildroot}%{__prefix}/
+# linking gopath locations to project location
+ln -sf %{projectlocation} %{buildroot}%{__prefix}/%{name}/src
+ln -sf %{gopath}/bin/%{name} %{buildroot}%{__prefix}/%{name}/bin
 
 %{meta} initScripts | while read i; do
     echo $i
     %if 0%{?rhel}  == 6
-        %{__install} -p -D -m 0755 %{buildroot}%{__prefix}/%{name}/src/${i} %{buildroot}%{_initrddir}/$(basename ${i})
+        %{__install} -p -D -m 0755 %{buildroot}%{projectlocation}/${i} %{buildroot}%{_initrddir}/$(basename ${i})
         sed -i 's/#NAME#/%{name}/g' %{buildroot}%{_initrddir}/$(basename ${i})
     %endif
 
     %if 0%{?rhel}  == 7
-        %{__install} -p -D -m 0755 %{buildroot}%{__prefix}/%{name}/src/${i} %{buildroot}/usr/lib/systemd/system/$(basename ${i})
+        %{__install} -p -D -m 0755 %{buildroot}%{projectlocation}/${i} %{buildroot}/usr/lib/systemd/system/$(basename ${i})
         sed -i 's/#NAME#/%{name}/g' %{buildroot}/usr/lib/systemd/system/$(basename ${i})
     %endif
 done
 
 # replace etc folder
-if [ -d %{buildroot}%{__prefix}/%{name}/src/build/etc ]; then
+if [ -d %{buildroot}%{projectlocation}/build/etc ]; then
     rm -rf %{buildroot}%{_sysconfdir}/%{name}
-    cp -rf %{buildroot}%{__prefix}/%{name}/src/build/etc %{buildroot}%{_sysconfdir}/%{name}
+    cp -rf %{buildroot}%{projectlocation}/build/etc %{buildroot}%{_sysconfdir}/%{name}
 fi
 
-if [ ! -e %{buildroot}%{__prefix}/%{name}/src/manage.sh ]; then
-    cp -r %{buildroot}%{__prefix}/%{name}/src/rpmtools/python/manage.sh %{buildroot}%{__prefix}/%{name}/src/manage.sh
+if [ ! -e %{buildroot}%{projectlocation}/manage.sh ]; then
+    cp -r %{buildroot}%{projectlocation}/rpmtools/python/manage.sh %{buildroot}%{projectlocation}/manage.sh
 fi
 
-chmod 755 %{buildroot}%{__prefix}/%{name}/src/manage.sh
+chmod 755 %{buildroot}%{projectlocation}/manage.sh
 
 mkdir -p %{buildroot}%{_bindir}
-ln -sf %{__prefix}/%{name}/src/manage.sh %{buildroot}%{_bindir}/%{name}
+ln -sf %{projectlocation}/manage.sh %{buildroot}%{_bindir}/%{name}
 
-rm -rf %{buildroot}%{__prefix}/%{name}/src/rpmtools
-rm -rf %{buildroot}%{__prefix}/%{name}/src/env
-rm -rf %{buildroot}%{__prefix}/%{name}/src/build
-rm -rf %{buildroot}%{__prefix}/%{name}/src/local_settings.py
-rm -rf %{buildroot}%{__prefix}/%{name}/src/node_modules
+rm -rf %{buildroot}%{projectlocation}/rpmtools
+rm -rf %{buildroot}%{projectlocation}/build
+rm -rf %{buildroot}%{projectlocation}/node_modules
 
 %post
 if [ $1 -gt 1 ]; then
@@ -199,6 +210,8 @@ rm -rf %{buildroot}
 %files
 %defattr(-,root,root)
 %{__prefix}/%{name}/
+%{gopath}/src/%{gopackage}
+%{gopath}/bin/%{name}
 %{_bindir}/%{name}
 
 %config(noreplace) %{_sysconfdir}/%{name}

@@ -20,7 +20,7 @@ REQUIRES=$(${META} yumDependencies)
 BUILD_REQUIRES="$(${META} yumBuildDependencies) python-argparse"
 INSTALL_BUILD_REQUIRES=1
 AFTER_INSTALL_CMD=$(${META} afterInstallCmd)
-GOPATH="${HOME}/go"
+export GOPATH="/opt/go"
 
 [[ ${AFTER_INSTALL_CMD} == '' ]] && AFTER_INSTALL_CMD="exit 0"
 
