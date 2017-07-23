@@ -122,11 +122,12 @@ mkdir -p %{buildroot}/var/run/%{name}
 ln -sf %{projectlocation} %{buildroot}%{__prefix}/%{name}/src
 ln -sf %{gopath}/bin/%{name} %{buildroot}%{__prefix}/%{name}/bin
 
-for SRC in $(%{meta} copy --keys); do
-    DEST=$(%{meta} "copy.$SRC")
+for file in $(%{meta} copy --keys); do
+    file_escape=$(echo $file | sed 's/\./\\./g')
+    dest=$(%{meta} "copy.${file_escape}")
     
-    echo "Copying $SRC -> $DEST"
-    cp -aR %{buildroot}%{projectlocation}/$SRC %{buildroot}%{__prefix}/%{name}
+    echo "Copying $file -> $dest"
+    cp -aR "%{buildroot}%{projectlocation}/$file" "%{buildroot}%{__prefix}/%{name}/$dest"
 done
 
 %{meta} initScripts | while read i; do
