@@ -41,8 +41,6 @@ mkdir -p %{projectlocation}
 %build
 cp -r '%{source}' %{gopath}/src/%{gopackage}
 
-# mkdir -p %{name}
-
 pushd %{projectlocation}
     %{meta} buildCmds | while read i; do
         echo "Execute: ${i}"
@@ -100,9 +98,6 @@ pushd %{projectlocation}
 
 popd
 
-#cp -r '%{gopath}/src/%{gopackage}' %{name}/src
-#cp -r '%{gopath}/bin' %{name}/bin
-
 rm -rf %{projectlocation}/.git*
 rm -rf %{projectlocation}/rpmtools/.git*
 rm -rf %{projectlocation}/.idea*
@@ -126,6 +121,13 @@ mkdir -p %{buildroot}/var/run/%{name}
 # linking gopath locations to project location
 ln -sf %{projectlocation} %{buildroot}%{__prefix}/%{name}/src
 ln -sf %{gopath}/bin/%{name} %{buildroot}%{__prefix}/%{name}/bin
+
+for SRC in $(%{meta} copy --keys); do
+    DEST=$(%{meta} "copy.$SRC")
+    
+    echo "Copying $SRC -> $DEST"
+    cp -aR %{buildroot}%{projectlocation}/$SRC %{buildroot}$DEST
+done
 
 %{meta} initScripts | while read i; do
     echo $i
