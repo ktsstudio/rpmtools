@@ -111,8 +111,10 @@ find %{projectlocation}/ -type f -exec sed -i "s:%{_builddir}:%{__prefix}:" {} \
 # making project root directory
 mkdir -p %{buildroot}%{__prefix}/%{name}
 
-# movinf gopath to buildroot
-mv %{gopath} %{buildroot}%{__prefix}
+# moving gopath to buildroot
+mkdir -p %{buildroot}%{gopath}/{src,pkg,bin}
+mv %{projectlocation} %{buildroot}%{projectlocation} # src
+mv %{gopath}/bin/%{name} %{buildroot}%{gopath}/bin/%{name} # bin
 
 # config and /var/run
 mkdir -p %{buildroot}%{_sysconfdir}/%{name}
