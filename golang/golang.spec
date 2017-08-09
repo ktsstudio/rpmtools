@@ -113,6 +113,7 @@ mkdir -p %{buildroot}%{__prefix}/%{name}
 
 # moving gopath to buildroot
 mkdir -p %{buildroot}%{gopath}/{src,pkg,bin}
+mkdir -p $(dirname "%{buildroot}%{projectlocation}") # create every dir but the last
 mv %{projectlocation} %{buildroot}%{projectlocation} # src
 mv %{gopath}/bin/%{name} %{buildroot}%{gopath}/bin/%{name} # bin
 
