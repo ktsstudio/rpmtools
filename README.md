@@ -4,9 +4,8 @@
 
 Поддерживаемые технологии:
 
-* Django
-* Torando
-* Scrapy
+* Python
+* Node
 * Yii
 
 Также существует simple-сборка, которая упаковывает в пакет 
@@ -32,33 +31,7 @@
 1. Создать в корне проекта файл package.json. Указать name, version
 2. Запустить из корня проекта ./rpmbuild/simple/build.sh
 
-### Scrapy
-
-После установки файлы находятся в /opt/<имя пакета>
-
-##### Параметры
-
-* -b --build - номер релиза. По-умолчанию текущий timestamp
-* -v --virtualenv - путь до virtualenv, с которым будет произведена сборка. По-умолчанию вывод команды ```which virtualenv``` 
-
-
-##### Сборка
-
-1. Создать в корне проекта файл package.json. Указать name, version, yumDependencies (массив), yumBuildDependencies (массив)
-2. Дополнить requirements.txt зависимостью "supervisor==3.1.3"
-3. Запустить из корня проекта ./rpmbuild/scrapy/build.sh
-4. После установки пакета в конфиге по-умолчанию /etc/<имя пакета>/supervisord.conf необходимо указать имя scrapy-проекта для запуска
-
-##### Инструментарий
-
-1. Системный сервис, который запускает по кругу scrapy
-2. Скрипт /usr/bin/<имя проекта>, который доступен в $PATH для быстрого запуска всех спайдеров указанного scrapy-проекта
-
-### Django
-
-Under construction
-
-### Tornado
+### Python
 
 После установки файлы находятся в /opt/<имя пакета>
 
@@ -72,11 +45,17 @@ Under construction
 * name - имя проекта
 * version - версия проекта
 * description - описание проекта
-* yumDependencies — зависимости
-* yumBuildDependencies - зависимости сборки
+* yumDependencies — зависимости (опционально)
+* yumBuildDependencies - зависимости сборки (опционально)
+* requirementsPath — путь до requirements.txt (опционально)
+* requirementsContentCommand — команда, которая возвращает содержимое requirements.txt. Используется для инвалидации кеша сборки (опционально)
 * gruntCwd - переход в директорию с grunt-скриптом (опционально)
 * excludeFiles — файлы, которые не нужно помещать в пакет (опционально)
 * virtualenv — путь до virtualenv и ключи запуска (опционально)
+* buildCmds — команды сборки (опционально) 
+* afterInstallCmd — команда после установки пакета 
+* template — шаблон сборки, упаковывает стандартные конфиги и скрипты. Значения: django, supervisor (опционально)
+
  
 ##### Сборка
 
@@ -84,6 +63,6 @@ Under construction
 2. Запустить из корня проекта ./rpmbuild/tornado/build.sh
 3. После установки пакета в конфиге по-умолчанию /etc/<имя пакета>/supervisord.conf необходимо скорректировать номер процесса
 
-### Yii
+### Yii, Node
 
 Under construction

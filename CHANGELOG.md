@@ -1,3 +1,19 @@
+5.0.0
+* Golang: добавлена поддержка сборки проектов на golang
+
+4.1.0
+* Yii: поддержка composer, миграция функционала из Python
+
+4.0.0
+* Django, Tornado -> Python
+
+3.6.9
+* Django, Tornado: замена в versionsuffix - на _
+* Django: фикс указания пути до питона (--python в пути до virtualenv)
+
+3.6.8
+* Django: version suffix
+
 3.6.7
 * Yii: чистим twig кеш
 

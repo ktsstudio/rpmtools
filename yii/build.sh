@@ -11,19 +11,17 @@ VERSION=$(${META} version)
 RELEASE=$(date +%s)
 REQUIRES=$(${META} yumDependencies)
 BUILDREQUIRES="$(${META} yumBuildDependencies) python-argparse"
-
-COMMAND=$(${META} command)
-[[ ${COMMAND} == '' ]] && COMMAND="exit 0"
-
+AFTER_INSTALL_CMD=$(${META} afterInstallCmd)
 SPECFILE=$(${META} specfile)
+
 [[ $SPECFILE == '' ]] && SPECFILE="${CURRENT_DIR}/yii.spec"
+[[ ${AFTER_INSTALL_CMD} == '' ]] && AFTER_INSTALL_CMD="exit 0"
 
 function opts {
         TEMP=`getopt -o b:c:h --long build:,command:,help -- "$@"`
         eval set -- "${TEMP}"
         while true; do
             case "$1" in
-                -c|--command) COMMAND=$2; shift 2 ;;
                 -b|--build) RELEASE=$2; shift 2 ;;
                 -h|--help) echo 'help under constuction' ; shift 1;;
                 --) shift ; break ;;
@@ -52,4 +50,4 @@ rpmbuild -bb ${SPECFILE} \
                    --define "requires $REQUIRES" \
                    --define "buildrequires $BUILDREQUIRES" \
                    --define "meta $META" \
-                   --define "command $COMMAND"
+                   --define "afterInstallCmd ${AFTER_INSTALL_CMD}"
