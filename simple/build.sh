@@ -20,7 +20,7 @@ SPECFILE=$(${META} specfile)
 [[ $SPECFILE == '' ]] && SPECFILE="${CURRENT_DIR}/simple.spec"
 
 function opts {
-        TEMP=`getopt -o g:s:b:h:c:p --long grunttask:,versionsuffix:,build:,command:,public:,help -- "$@"`
+        TEMP=`getopt -o g:s:b:h:c:p --long grunttask:,versionsuffix:,build:,name:,namesuffix:,command:,public:,help -- "$@"`
         eval set -- "$TEMP"
         while true; do
             case "$1" in
@@ -30,6 +30,8 @@ function opts {
                 -c|--command) COMMAND=$2; shift 2 ;;
                 -p|--public) PUBLIC_DIR_NAME=$2; shift 2 ;;
                 -h|--help) echo 'help under constuction' ; shift 1;;
+                --name) NAME=$2; shift 2 ;;
+                --namesuffix) NAME="$NAME$2"; shift 2 ;;
                 --) shift ; break ;;
                 *) echo "Internal parsing error!: $1" ; exit 1 ;;
             esac
