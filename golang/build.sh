@@ -28,13 +28,15 @@ SPECFILE=$(${META} specfile)
 [[ $SPECFILE == '' ]] && SPECFILE="${CURRENT_DIR}/golang.spec"
 
 function opts {
-        TEMP=`getopt -o c:s:b:f:h --long supervisor:,build:,versionsuffix:,help,disable-build-requires -- "$@"`
+        TEMP=`getopt -o c:s:b:f:h --long supervisor:,build:,name:,versionsuffix:,namesuffix:,help,disable-build-requires -- "$@"`
         eval set -- "$TEMP"
         while true; do
             case "$1" in
                 -h|--help) echo 'help under constuction' ; shift 1;;
                 -b|--build) RELEASE=$2; shift 2 ;;
                 -f|--versionsuffix) VERSIONSUFFIX=$2; shift 2 ;;
+                --name) NAME=$2; shift 2 ;;
+                --namesuffix) NAME="$NAME$2"; shift 2 ;;
                 --disable-build-requires) INSTALL_BUILD_REQUIRES=0; shift 1;;
                 --) shift ; break ;;
                 *) echo "Internal parsing error!: $1" ; exit 1 ;;

@@ -28,7 +28,7 @@ SPECFILE=$(${META} specfile)
 [[ $SPECFILE == '' ]] && SPECFILE="${CURRENT_DIR}/python.spec"
 
 function opts {
-        TEMP=`getopt -o c:s:v:b:f:h --long supervisor:,virtualenv:,build:,versionsuffix:,help,disable-build-requires -- "$@"`
+        TEMP=`getopt -o c:s:v:b:f:h --long supervisor:,virtualenv:,build:,namesuffix:,name:,versionsuffix:,help,disable-build-requires -- "$@"`
         eval set -- "$TEMP"
         while true; do
             case "$1" in
@@ -36,6 +36,8 @@ function opts {
                 -b|--build) RELEASE=$2; shift 2 ;;
                 -f|--versionsuffix) VERSIONSUFFIX=$2; shift 2 ;;
                 -v|--virtualenv) VIRTUALENV=$2; shift 2 ;;
+                --name) NAME=$2; shift 2 ;;
+                --namesuffix) NAME="$NAME$2"; shift 2 ;;
                 --disable-build-requires) INSTALL_BUILD_REQUIRES=0; shift 1;;
                 --) shift ; break ;;
                 *) echo "Internal parsing error!: $1" ; exit 1 ;;

@@ -16,12 +16,14 @@ SPECFILE=$(${META} specfile)
 [[ $SPECFILE == '' ]] && SPECFILE="${CURRENT_DIR}/node.spec"
 
 function opts {
-        TEMP=`getopt -o b:h --long build:,help -- "$@"`
+        TEMP=`getopt -o b:h --long build:,namesuffix:,name:,help -- "$@"`
         eval set -- "${TEMP}"
         while true; do
             case "$1" in
                 -h|--help) echo 'help under constuction' ; shift 1;;
                 -b|--build) RELEASE=$2; shift 2 ;;
+                --name) NAME=$2; shift 2 ;;
+                --namesuffix) NAME="$NAME$2"; shift 2 ;;
                 --) shift ; break ;;
                 *) echo "Internal parsing error!: $1" ; exit 1 ;;
             esac
