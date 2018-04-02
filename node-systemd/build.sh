@@ -1,7 +1,7 @@
 #!/bin/bash
 CURRENT_DIR=$(cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd)
 SOURCE_DIR="${CURRENT_DIR}/../../"
-META=$(echo "python ${CURRENT_DIR}/../meta.py --file ${SOURCE_DIR}/package.json --query")
+META=$(echo "python ${CURRENT_DIR}/../meta.py --file ${SOURCE_DIR}/build/package.json --query")
 
 source ${CURRENT_DIR}/../common.sh
 
