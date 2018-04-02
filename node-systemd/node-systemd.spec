@@ -71,6 +71,8 @@ mv %{name} %{buildroot}%{__prefix}/
 
 ls -lah "%{buildroot}%{__prefix}/%{name}/src"
 
+mkdir -p "%{buildroot}/etc/%{name}"
+
 # install systemd scripts
 %{meta} initScripts | while read i; do
     echo $i
@@ -137,6 +139,8 @@ rm -rf %{buildroot}
 %if 0%{?rhel} == 7 
 /usr/lib/systemd/system/*
 %endif
+
+/etc/%{name}/*
 
 %defattr(-,%{name},%{name})
 /var/run/%{name}/
