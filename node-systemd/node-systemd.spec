@@ -112,10 +112,10 @@ rm -rf %{buildroot}
 %defattr(-,%{name},%{name})
 /var/run/%{name}/
 
-%if 0%{?rhel}  == 6 && 0%{?initPresents:1} == 1
-%{_initrddir}/%{name}*
+%if 0%{?rhel} == 6 && 0%{?initPresents:1} == 1
+%{_initrddir}/*
 %endif
 
 %if 0%{?rhel} == 7 && 0%{?initPresents:1} == 1
-%config(noreplace) /usr/lib/systemd/system/%{name}*
+/usr/lib/systemd/system/*
 %endif
