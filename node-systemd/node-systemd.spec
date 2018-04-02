@@ -71,12 +71,12 @@ mv %{name} %{buildroot}%{__prefix}/
 %{meta} initScripts | while read i; do
     echo $i
     %if 0%{?rhel}  == 6
-        %{__install} -p -D -m 0755 %{buildroot}%{projectlocation}/${i} %{buildroot}%{_initrddir}/$(basename ${i})
+        %{__install} -p -D -m 0755 %{buildroot}%{__prefix}/%{name}/src/${i} %{buildroot}%{_initrddir}/$(basename ${i})
         sed -i 's/#NAME#/%{name}/g' %{buildroot}%{_initrddir}/$(basename ${i})
     %endif
 
     %if 0%{?rhel}  == 7
-        %{__install} -p -D -m 0755 %{buildroot}%{projectlocation}/${i} %{buildroot}/usr/lib/systemd/system/$(basename ${i})
+        %{__install} -p -D -m 0755 %{buildroot}%{__prefix}/%{name}/src/${i} %{buildroot}/usr/lib/systemd/system/$(basename ${i})
         sed -i 's/#NAME#/%{name}/g' %{buildroot}/usr/lib/systemd/system/$(basename ${i})
     %endif
 done
