@@ -31,13 +31,13 @@ fi
 %build
 
 mkdir -p %{name}
-cp -r '%{source}' %{name}/src
-rm -rf %{name}/src/.git*
-rm -rf %{name}/src/rpmtools/.git*
-rm -rf %{name}/src/.idea*
+cp -r '%{source}' %{name}
+rm -rf %{name}/.git*
+rm -rf %{name}/rpmtools/.git*
+rm -rf %{name}/.idea*
 
 
-pushd %{name}/src
+pushd %{name}
     if [ -e "package.json" ]
     then
         if [ -e "package-lock.json" ]; then
@@ -69,7 +69,7 @@ popd
 mkdir -p %{buildroot}%{__prefix}/%{name}
 mv %{name} %{buildroot}%{__prefix}/
 
-ls -lah "%{buildroot}%{__prefix}/%{name}/src"
+ls -lah "%{buildroot}%{__prefix}/%{name}"
 
 mkdir -p "%{buildroot}/etc/%{name}"
 
@@ -77,12 +77,12 @@ mkdir -p "%{buildroot}/etc/%{name}"
 %{meta} initScripts | while read i; do
     echo $i
     %if 0%{?rhel}  == 6
-        %{__install} -p -D -m 0755 %{buildroot}%{__prefix}/%{name}/src/${i} %{buildroot}%{_initrddir}/$(basename ${i})
+        %{__install} -p -D -m 0755 %{buildroot}%{__prefix}/%{name}/${i} %{buildroot}%{_initrddir}/$(basename ${i})
         sed -i 's/#NAME#/%{name}/g' %{buildroot}%{_initrddir}/$(basename ${i})
     %endif
 
     %if 0%{?rhel}  == 7
-        %{__install} -p -D -m 0755 %{buildroot}%{__prefix}/%{name}/src/${i} %{buildroot}/usr/lib/systemd/system/$(basename ${i})
+        %{__install} -p -D -m 0755 %{buildroot}%{__prefix}/%{name}/${i} %{buildroot}/usr/lib/systemd/system/$(basename ${i})
         sed -i 's/#NAME#/%{name}/g' %{buildroot}/usr/lib/systemd/system/$(basename ${i})
     %endif
 done
@@ -92,17 +92,17 @@ for file in $(%{meta} copy --keys); do
     file_escape=$(echo $file | sed 's/\./\\./g')
     dest=$(%{meta} "copy.${file_escape}")
     if [[ ! $dest =~ ^/ ]]; then
-        dest="%{__prefix}/%{name}/src/$dest"
+        dest="%{__prefix}/%{name}/$dest"
     fi
     
     echo "Copying $file -> $dest"
-    destdirname=$(dirname "%{buildroot}%{__prefix}/%{name}/src/$file")
+    destdirname=$(dirname "%{buildroot}%{__prefix}/%{name}/$file")
     mkdir -p "$destdirname"
-    cp -aR "%{buildroot}%{__prefix}/%{name}/src/$file" "%{buildroot}/$dest"
+    cp -aR "%{buildroot}%{__prefix}/%{name}/$file" "%{buildroot}/$dest"
 done
 
 # misc
-rm -rf %{buildroot}%{__prefix}/%{name}/src/rpmtools
+rm -rf %{buildroot}%{__prefix}/%{name}/rpmtools
 mkdir -p %{buildroot}/var/run/%{name}
 
 %post
