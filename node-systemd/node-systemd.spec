@@ -137,10 +137,10 @@ rm -rf %{buildroot}
 %endif
 
 %if 0%{?rhel} == 7 
-/usr/lib/systemd/system/*
+%config(noreplace) /usr/lib/systemd/system/*
 %endif
 
-/etc/%{name}/*
+%config(noreplace) /etc/%{name}/*
 
 %defattr(-,%{name},%{name})
 /var/run/%{name}/
