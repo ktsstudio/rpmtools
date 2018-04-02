@@ -125,7 +125,7 @@ else
     %{meta} mkdir | while read i; do
         dir=$i
         if [[ ! $dir =~ ^/ ]]; then
-            dir="%{__prefix}/%{name}/$dir"
+            dir="%{__prefix}/%{name}/src/$dir"
         fi
         chown -R %{name}:%{name} "$dir"
     done
