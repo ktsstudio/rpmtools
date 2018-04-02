@@ -69,7 +69,7 @@ popd
 mkdir -p %{buildroot}%{__prefix}/%{name}
 mv %{name} %{buildroot}%{__prefix}/
 
-ls -lah "%{buildroot}%{__prefix}/%{name}"
+ls -lah "%{buildroot}%{__prefix}/%{name}/src"
 
 # install systemd scripts
 %{meta} initScripts | while read i; do
@@ -89,7 +89,7 @@ done
 %{meta} mkdir | while read i; do
     dir=$i
     if [[ ! $dir =~ ^/ ]]; then
-        dir="%{__prefix}/%{name}/$dir"
+        dir="%{__prefix}/%{name}/src/$dir"
     fi
     echo "Mkdir $dir"
     mkdir -p "%{buildroot}/$dir"
@@ -100,11 +100,11 @@ for file in $(%{meta} copy --keys); do
     file_escape=$(echo $file | sed 's/\./\\./g')
     dest=$(%{meta} "copy.${file_escape}")
     if [[ ! $dest =~ ^/ ]]; then
-        dest="%{__prefix}/%{name}/$dest"
+        dest="%{__prefix}/%{name}/src/$dest"
     fi
     
     echo "Copying $file -> $dest"
-    cp -aR "%{buildroot}%{__prefix}/%{name}/$file" "%{buildroot}/$dest"
+    cp -aR "%{buildroot}%{__prefix}/%{name}/src/$file" "%{buildroot}/$dest"
 done
 
 # misc
