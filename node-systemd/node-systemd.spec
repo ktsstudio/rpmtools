@@ -65,9 +65,11 @@ pushd %{name}/src
 popd
 
 %install
+# making project root directory
 mkdir -p %{buildroot}%{__prefix}/%{name}
 mv %{name} %{buildroot}%{__prefix}/
 
+# install systemd scripts
 %{meta} initScripts | while read i; do
     echo $i
     %if 0%{?rhel}  == 6
@@ -81,7 +83,29 @@ mv %{name} %{buildroot}%{__prefix}/
     %endif
 done
 
-# configs
+# mkdir
+%{meta} mkdir | while read i; do
+    dir=$i
+    if [[ ! $dir =~ ^/ ]]; then
+        dir="%{__prefix}/%{name}/$dir"
+    fi
+    echo "Mkdir $dir"
+    mkdir -p "%{buildroot}/$dir"
+done
+
+# copy files
+for file in $(%{meta} copy --keys); do
+    file_escape=$(echo $file | sed 's/\./\\./g')
+    dest=$(%{meta} "copy.${file_escape}")
+    if [[ ! $dest =~ ^/ ]]; then
+        dest="%{__prefix}/%{name}/$dest"
+    fi
+    
+    echo "Copying $file -> $dest"
+    cp -aR "%{buildroot}%{__prefix}/%{name}/$file" "%{buildroot}/$dest"
+done
+
+# misc
 rm -rf %{buildroot}%{__prefix}/%{name}/src/rpmtools
 mkdir -p %{buildroot}/var/run/%{name}
 
@@ -95,6 +119,14 @@ else
 
     mkdir -p /var/log/%{name}
     chown -R %{name}:%{name} /var/log/%{name}
+
+    %{meta} mkdir | while read i; do
+        dir=$i
+        if [[ ! $dir =~ ^/ ]]; then
+            dir="%{__prefix}/%{name}/$dir"
+        fi
+        chown -R %{name}:%{name} "$dir"
+    done
 fi
 
 %preun
