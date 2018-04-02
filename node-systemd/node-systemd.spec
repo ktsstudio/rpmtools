@@ -69,6 +69,8 @@ popd
 mkdir -p %{buildroot}%{__prefix}/%{name}
 mv %{name} %{buildroot}%{__prefix}/
 
+ls -lah "%{buildroot}%{__prefix}/%{name}"
+
 # install systemd scripts
 %{meta} initScripts | while read i; do
     echo $i
