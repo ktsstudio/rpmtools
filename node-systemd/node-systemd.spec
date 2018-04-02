@@ -109,13 +109,13 @@ rm -rf %{buildroot}
 %defattr(-,root,root)
 %{__prefix}/%{name}/
 
-%defattr(-,%{name},%{name})
-/var/run/%{name}/
-
-%if 0%{?rhel} == 6 && 0%{?initPresents:1} == 1
+%if 0%{?rhel} == 6 
 %{_initrddir}/*
 %endif
 
-%if 0%{?rhel} == 7 && 0%{?initPresents:1} == 1
+%if 0%{?rhel} == 7 
 /usr/lib/systemd/system/*
 %endif
+
+%defattr(-,%{name},%{name})
+/var/run/%{name}/
