@@ -109,8 +109,6 @@ rm -rf %{buildroot}
 %defattr(-,root,root)
 %{__prefix}/%{name}/
 
-%config(noreplace) %{_sysconfdir}/%{name}/production.json
-
 %defattr(-,%{name},%{name})
 /var/run/%{name}/
 
