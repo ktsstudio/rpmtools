@@ -85,16 +85,6 @@ ls -lah "%{buildroot}%{__prefix}/%{name}/src"
     %endif
 done
 
-# mkdir
-%{meta} mkdir | while read i; do
-    dir=$i
-    if [[ ! $dir =~ ^/ ]]; then
-        dir="%{__prefix}/%{name}/src/$dir"
-    fi
-    echo "Mkdir $dir"
-    mkdir -p "%{buildroot}/$dir"
-done
-
 # copy files
 for file in $(%{meta} copy --keys); do
     file_escape=$(echo $file | sed 's/\./\\./g')
@@ -104,6 +94,8 @@ for file in $(%{meta} copy --keys); do
     fi
     
     echo "Copying $file -> $dest"
+    destdirname=$(dirname "%{buildroot}%{__prefix}/%{name}/src/$file")
+    mkdir -p "$destdirname"
     cp -aR "%{buildroot}%{__prefix}/%{name}/src/$file" "%{buildroot}/$dest"
 done
 
@@ -122,13 +114,8 @@ else
     mkdir -p /var/log/%{name}
     chown -R %{name}:%{name} /var/log/%{name}
 
-    %{meta} mkdir | while read i; do
-        dir=$i
-        if [[ ! $dir =~ ^/ ]]; then
-            dir="%{__prefix}/%{name}/src/$dir"
-        fi
-        chown -R %{name}:%{name} "$dir"
-    done
+    mkdir -p /var/lib/%{name}
+    chown -R %{name}:%{name} /var/lib/%{name}
 fi
 
 %preun
