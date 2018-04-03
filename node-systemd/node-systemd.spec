@@ -50,10 +50,12 @@ pushd %{name}
         then
           echo "Found cached node_modules: ${CACHED_NODE_MODULES}, use it"
           tar xf ${CACHED_NODE_MODULES} ./
-          npm install --unsafe-perm
+          chown -R %{name}:%{name} .
+          sudo -u %{name} npm install || exit 1
         else
           echo "No found cached node_modules, download..."
-          npm install --unsafe-perm || exit 1
+          chown -R %{name}:%{name} .
+          sudo -u %{name} npm install || exit 1
           echo "Save node_modules into cache: ${CACHED_NODE_MODULES}"
           tar cf ${CACHED_NODE_MODULES} ./node_modules || true
         fi
