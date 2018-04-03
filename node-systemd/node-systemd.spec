@@ -50,6 +50,7 @@ pushd %{name}
         then
           echo "Found cached node_modules: ${CACHED_NODE_MODULES}, use it"
           tar xf ${CACHED_NODE_MODULES} ./
+          npm install
         else
           echo "No found cached node_modules, download..."
           npm install || exit 1
@@ -118,6 +119,9 @@ else
 
     mkdir -p /var/lib/%{name}
     chown -R %{name}:%{name} /var/lib/%{name}
+
+    mkdir -p /opt/%{name}/.config
+    chown -R %{name}:%{name} /opt/%{name}/.config
 fi
 
 %preun
