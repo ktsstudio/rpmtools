@@ -10,7 +10,7 @@ VERSION=$(${META} version)
 RELEASE=$(date +%s)
 summary=$(${META} description)
 REQUIRES=$(${META} yumDependencies)
-BUILDREQUIRES="$(${META} yumBuildDependencies) python-argparse sudo"
+BUILDREQUIRES="$(${META} yumBuildDependencies) python-argparse"
 
 SPECFILE=$(${META} specfile)
 [[ $SPECFILE == '' ]] && SPECFILE="${CURRENT_DIR}/node-systemd.spec"
