@@ -69,8 +69,6 @@ popd
 mkdir -p %{buildroot}%{__prefix}/%{name}
 mv %{name} %{buildroot}%{__prefix}/
 
-ls -lah "%{buildroot}%{__prefix}/%{name}"
-
 mkdir -p "%{buildroot}/etc/%{name}"
 
 # install systemd scripts
