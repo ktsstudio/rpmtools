@@ -50,11 +50,11 @@ pushd %{name}
         then
           echo "Found cached node_modules: ${CACHED_NODE_MODULES}, use it"
           tar xf ${CACHED_NODE_MODULES} ./
-          chown -R %{name}:%{name} .
+          chown -R %{name} .
           sudo -u %{name} npm install || exit 1
         else
           echo "No found cached node_modules, download..."
-          chown -R %{name}:%{name} .
+          chown -R %{name} .
           sudo -u %{name} npm install || exit 1
           echo "Save node_modules into cache: ${CACHED_NODE_MODULES}"
           tar cf ${CACHED_NODE_MODULES} ./node_modules || true
