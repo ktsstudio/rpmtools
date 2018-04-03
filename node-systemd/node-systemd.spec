@@ -30,9 +30,6 @@ fi
 
 %build
 
-/usr/bin/getent group build || /usr/sbin/groupadd -r build
-/usr/bin/getent passwd build || /usr/sbin/useradd -r -s /bin/false build -g build
-
 mkdir -p %{name}
 cp -r '%{source}' %{name}
 rm -rf %{name}/.git*
@@ -52,14 +49,10 @@ pushd %{name}
         then
           echo "Found cached node_modules: ${CACHED_NODE_MODULES}, use it"
           tar xf ${CACHED_NODE_MODULES} ./
-          chown -R build .
-          chmod -R 755 .
-          sudo -u build npm install
+          npm install --unsafe-perm
         else
           echo "No found cached node_modules, download..."
-          chown -R build .
-          chmod -R 755 .
-          sudo -u build npm install
+          npm install --unsafe-perm
           echo "Save node_modules into cache: ${CACHED_NODE_MODULES}"
           tar cf ${CACHED_NODE_MODULES} ./node_modules || true
         fi
