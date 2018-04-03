@@ -30,12 +30,14 @@ fi
 
 %build
 
+/usr/bin/getent group build || /usr/sbin/groupadd -r build
+/usr/bin/getent passwd build || /usr/sbin/useradd -r -s /bin/false build -g build
+
 mkdir -p %{name}
 cp -r '%{source}' %{name}
 rm -rf %{name}/.git*
 rm -rf %{name}/rpmtools/.git*
 rm -rf %{name}/.idea*
-
 
 pushd %{name}
     if [ -e "package.json" ]
@@ -50,12 +52,12 @@ pushd %{name}
         then
           echo "Found cached node_modules: ${CACHED_NODE_MODULES}, use it"
           tar xf ${CACHED_NODE_MODULES} ./
-          chown -R %{name} .
-          sudo -u %{name} npm install || exit 1
+          chown -R build .
+          sudo -u build npm install
         else
           echo "No found cached node_modules, download..."
-          chown -R %{name} .
-          sudo -u %{name} npm install || exit 1
+          chown -R build .
+          sudo -u build npm install || exit 1
           echo "Save node_modules into cache: ${CACHED_NODE_MODULES}"
           tar cf ${CACHED_NODE_MODULES} ./node_modules || true
         fi
