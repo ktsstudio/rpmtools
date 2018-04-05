@@ -74,12 +74,12 @@ mkdir -p "%{buildroot}/etc/%{name}"
 # install systemd scripts
 %{meta} initScripts | while read i; do
     echo $i
-    %if 0%{?rhel}  == 6
+    %if 0%{?rhel} == 6
         %{__install} -p -D -m 0755 %{buildroot}%{__prefix}/%{name}/${i} %{buildroot}%{_initrddir}/$(basename ${i})
         sed -i 's/#NAME#/%{name}/g' %{buildroot}%{_initrddir}/$(basename ${i})
     %endif
 
-    %if 0%{?rhel}  == 7
+    %if 0%{?rhel} == 7
         %{__install} -p -D -m 0755 %{buildroot}%{__prefix}/%{name}/${i} %{buildroot}/usr/lib/systemd/system/$(basename ${i})
         sed -i 's/#NAME#/%{name}/g' %{buildroot}/usr/lib/systemd/system/$(basename ${i})
     %endif
@@ -108,8 +108,19 @@ if [ $1 -gt 1 ]; then
     echo "Upgrade"
 else
     echo "Install"
-    /sbin/chkconfig --list %{name} > /dev/null 2>&1 || /sbin/chkconfig --add %{name}
-    /sbin/chkconfig %{name} on
+
+    %if 0%{?rhel} == 6
+        if [ -e /etc/init.d/%{name} ]; then
+            /sbin/chkconfig --list %{name} > /dev/null 2>&1 || /sbin/chkconfig --add %{name}
+            /sbin/chkconfig %{name} on
+        fi
+    %endif
+
+    %if 0%{?rhel}  == 7
+    if [ -e /usr/lib/systemd/system/%{name}.service ]; then
+        systemctl enable %{name}.service
+    fi
+    %endif
 
     mkdir -p /var/log/%{name}
     chown -R %{name}:%{name} /var/log/%{name}
@@ -123,7 +134,15 @@ fi
 
 %preun
 if [ $1 -eq 0 ]; then
-    /sbin/chkconfig --del %{name}
+    %if 0%{?rhel} == 6
+        /sbin/chkconfig --del %{name}
+    %endif
+
+    %if 0%{?rhel} == 7
+    if [ -e /usr/lib/systemd/system/%{name}.service ]; then
+        systemctl disable %{name}.service
+    fi
+    %endif
 fi
 
 %clean
