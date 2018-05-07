@@ -236,13 +236,13 @@ rm -rf %{buildroot}
 
 %config(noreplace) %{_sysconfdir}/%{name}
 
-%defattr(-,%{name},%{name})
+%defattr(-,%{name_no_suffix},%{name_no_suffix})
 /var/run/%{name}/
 
 %if 0%{?rhel}  == 6 && 0%{?initPresents:1} == 1
-%{_initrddir}/%{name}*
+%{_initrddir}/%{name_no_suffix}*
 %endif
 
 %if 0%{?rhel} == 7 && 0%{?initPresents:1} == 1
-%config(noreplace) /usr/lib/systemd/system/%{name}*
+%config(noreplace) /usr/lib/systemd/system/%{name_no_suffix}*
 %endif
