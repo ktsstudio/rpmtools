@@ -2,36 +2,22 @@
 CURRENT_DIR=$(cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd)
 SOURCE_DIR="${CURRENT_DIR}/../../"
 
-PACKAGEJSON="build/package.json"
+source ${CURRENT_DIR}/../common.sh
 
-function meta_opts {
-        TEMP=`getopt --long packagejson: -- "$@"`
-        eval set -- "$TEMP"
-        while true; do
-            case "$1" in
-                --packagejson) PACKAGEJSON="$2"; shift 2 ;;
-                --) shift ; break ;;
-                *) echo "Internal parsing error!: $1" ; exit 1 ;;
-            esac
-        done
-}
-
-meta_opts "$@"
-echo "Using package.json file: ${PACKAGEJSON}"
-
-if [ ! -f "${SOURCE_DIR}/${PACKAGEJSON}" ]; then
-    echo "package.json file not found in path: ${SOURCE_DIR}/${PACKAGEJSON}"
+PACKAGEJSON=$(get_packagejson ${SOURCE_DIR} "$@")
+echo
+if [ -z "${PACKAGEJSON}" ]; then
+    echo "package.json file not found"
     exit 1
 fi
+echo "Using package.json file: ${SOURCE_DIR}${PACKAGEJSON}"
 
-META=$(echo "python ${CURRENT_DIR}/../meta.py --file ${SOURCE_DIR}/${PACKAGEJSON} --query")
+META=$(echo "python ${CURRENT_DIR}/../meta.py --file ${SOURCE_DIR}${PACKAGEJSON} --query")
 
 INIT_PRESENTS=0
 if [[ "$(${META} template)" != '' || "$(${META} initScripts)" != '' ]]; then
     INIT_PRESENTS=1
 fi
-
-source ${CURRENT_DIR}/../common.sh
 
 NAME=$(${META} name)
 GOPACKAGE=$(${META} gopackage)
@@ -52,7 +38,7 @@ SPECFILE=$(${META} specfile)
 
 
 function opts {
-        TEMP=`getopt -o b:h --long build:,name:,versionsuffix:,namesuffix:,help,disable-build-requires -- "$@"`
+        TEMP=`getopt -o b:h --long build:,name:,versionsuffix:,namesuffix:,packagejson:,help,disable-build-requires -- "$@"`
         eval set -- "$TEMP"
         while true; do
             case "$1" in
@@ -62,6 +48,7 @@ function opts {
                 --name) NAME=$2; shift 2 ;;
                 --namesuffix) NAMESUFFIX="$2"; shift 2 ;;
                 --disable-build-requires) INSTALL_BUILD_REQUIRES=0; shift 1;;
+                --packagejson) shift ; break ;;
                 --) shift ; break ;;
                 *) echo "Internal parsing error!: $1" ; exit 1 ;;
             esac
