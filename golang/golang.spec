@@ -34,11 +34,23 @@ mkdir -p %{gopath}/bin
 mkdir -p %{gopath}/pkg
 mkdir -p %{projectlocation}
 
+echo "Go version: $(go version)"
+
 %pre
 /usr/bin/getent group %{name} || /usr/sbin/groupadd -r %{name}
 /usr/bin/getent passwd %{name} || /usr/sbin/useradd -r -d /opt/%{name}/ -s /bin/false %{name} -g %{name}
 
 %build
+pushd %{source}
+    export rpmtools_version=%{version}
+    export rpmtools_release=$(echo %{release} | sed s/%{?dist}//g)
+    export rpmtools_git_hash_short=$(git rev-parse --short HEAD)
+
+    echo "Version: ${rpmtools_version}"
+    echo "Release: ${rpmtools_release}"
+    echo "GIT short: ${rpmtools_git_hash_short}"
+popd
+
 cp -r '%{source}' %{gopath}/src/%{gopackage}
 
 pushd %{projectlocation}
@@ -92,8 +104,10 @@ pushd %{projectlocation}
     # Building
     mkdir -p %{gopath}/bin/%{name}
     %{meta} goMain | while read i; do
-        echo "Executing: go build ${i}"
-        go build -o "%{gopath}/bin/%{name}/`basename ${i%.*}`" "${i}" || exit 1
+        go_build_ldflags="$(%{meta} "goBuild_ldflags.$(echo ${i} | sed 's/\./\\./g')")"
+        go_build_ldflags=$(eval "echo $go_build_ldflags")
+        echo "${i}: ${go_build_ldflags}"
+        go build -o "%{gopath}/bin/%{name}/`basename ${i%.*}`" -ldflags "${go_build_ldflags}" "${i}" || exit 1
     done
 
 popd
