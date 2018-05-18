@@ -1,3 +1,6 @@
+5.1.3
+* Node-systemd: Спека для NodeJS с возможностью указания systemd сервисов
+
 5.1.2
 * Golang: возможность указать ldflags для go build
 * Golang: возможность указать путь до package.json файла
@@ -49,7 +52,7 @@
 * Все: сделан common.sh. В нем функции, которые выполняются для всех build.sh
 * Все: поправлен meta.py, чтоб print работал в python 3
 * Все: небольшой рефакторинг переменных, кода
-* Tornado: manage.py можно вызывать из любого места в системе через manage.sh. Если manage.sh есть в корне проекта, он не заменяется manage.sh из rpmtools 
+* Tornado: manage.py можно вызывать из любого места в системе через manage.sh. Если manage.sh есть в корне проекта, он не заменяется manage.sh из rpmtools
 
 3.5.5
 
@@ -101,7 +104,7 @@
 3.3.0
 
 * Tornado: изменена структура конфигов по-умолчанию для supervisor. Теперь существует папка /etc/%{name}/programs, в
-которой либо дефолтный конфиг простого приложения, либо конфиги из build/programs. /etc/%{name}/supervisor.conf инклюдит 
+которой либо дефолтный конфиг простого приложения, либо конфиги из build/programs. /etc/%{name}/supervisor.conf инклюдит
 конфиги из /etc/%{name}/programs
 * Tornado: поддержка Centos 7 (systemd)
 * Tornado: пусть до virtualenv и его ключи можно задавать из build/package.json
@@ -164,7 +167,7 @@
 1.2.0
 
 * Simple: Кеширование bower_components и node_modules
- 
+
 1.1.0
 
 * Tornado: можно указать путь до супервизора
