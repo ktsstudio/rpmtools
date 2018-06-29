@@ -38,7 +38,7 @@ then
     else
       echo "No found cached node_modules, download..."
       yarn=$(which yarn 2>/dev/null || true)
-      if [ "${yarn}" != "" ]; then
+      if [[ "${yarn}" != "" && -e "yarn.lock" ]]; then
         $yarn || exit 1
       else
         npm install || exit 1

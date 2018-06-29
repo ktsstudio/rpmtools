@@ -1,3 +1,6 @@
+5.1.4
+* Simple: использовать yarn, только если есть yarn.lock
+
 5.1.3
 * Node-systemd: Спека для NodeJS с возможностью указания systemd сервисов
 
