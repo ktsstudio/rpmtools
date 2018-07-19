@@ -9,6 +9,9 @@ Release: %{release}%{?dist}
 BuildRoot: %{_tmppath}/%{name}-%{version}-%{release}-buildroot
 Prefix: %{_prefix}
 Requires: %{requires}
+BuildRequires: golang
+BuildRequires: rpm-build
+BuildRequires: redhat-rpm-config
 BuildRequires: %{buildrequires}
 License: proprietary
 Group: Apps/sys
@@ -30,6 +33,7 @@ if [ -d %{gopath} ]; then
 fi
 
 # Setting up GOPATH and project location for building
+mkdir -p %{name}
 mkdir -p %{gopath}/bin
 mkdir -p %{gopath}/pkg
 mkdir -p %{projectlocation}
@@ -82,7 +86,7 @@ pushd %{projectlocation}
 
         HASH=$(echo "${VENDORLOCK_CONTENT}" | md5sum | awk '{ print $1 }')
         CACHED_VENDOR="/tmp/golang_vendor_${HASH}.tar"
-        
+
         if [ -e "${CACHED_VENDOR}" ]
         then
           echo "Found cached vendor: ${CACHED_VENDOR}, use it"
@@ -100,7 +104,7 @@ pushd %{projectlocation}
     else
         echo 'Not found vendorlock, skipped...'
     fi
-    
+
     # Building
     mkdir -p %{gopath}/bin/%{name}
     %{meta} goMain | while read i; do
@@ -119,6 +123,7 @@ rm -rf %{projectlocation}/.idea*
 # removed grunt and bower stuff for now
 
 find %{projectlocation}/ -type f -exec sed -i "s:%{_builddir}:%{__prefix}:" {} \;
+# rm -rf %{gopath}/src/%{gopackage}
 
 
 %install
@@ -126,9 +131,7 @@ find %{projectlocation}/ -type f -exec sed -i "s:%{_builddir}:%{__prefix}:" {} \
 mkdir -p %{buildroot}%{__prefix}/%{name}
 
 # moving gopath to buildroot
-mkdir -p %{buildroot}%{gopath}/{src,pkg,bin}
-mkdir -p $(dirname "%{buildroot}%{projectlocation}") # create every dir but the last
-mv %{projectlocation} %{buildroot}%{projectlocation} # src
+mkdir -p %{buildroot}%{gopath}/{pkg,bin}
 mv %{gopath}/bin/%{name} %{buildroot}%{gopath}/bin/%{name} # bin
 
 # config and /var/run
@@ -142,38 +145,31 @@ ln -sf %{gopath}/bin/%{name} %{buildroot}%{__prefix}/%{name}/bin
 for file in $(%{meta} copy --keys); do
     file_escape=$(echo $file | sed 's/\./\\./g')
     dest=$(%{meta} "copy.${file_escape}")
-    
+
     echo "Copying $file -> $dest"
-    cp -aR "%{buildroot}%{projectlocation}/$file" "%{buildroot}%{__prefix}/%{name}/$dest"
+    cp -aR "%{projectlocation}/$file" "%{buildroot}%{__prefix}/%{name}/$dest"
 done
 
 %{meta} initScripts | while read i; do
     echo $i
     %if 0%{?rhel}  == 6
-        %{__install} -p -D -m 0755 %{buildroot}%{projectlocation}/${i} %{buildroot}%{_initrddir}/$(basename ${i})
+        %{__install} -p -D -m 0755 %{projectlocation}/${i} %{buildroot}%{_initrddir}/$(basename ${i})
         sed -i 's/#NAME#/%{name}/g' %{buildroot}%{_initrddir}/$(basename ${i})
     %endif
 
     %if 0%{?rhel}  == 7
-        %{__install} -p -D -m 0755 %{buildroot}%{projectlocation}/${i} %{buildroot}/usr/lib/systemd/system/$(basename ${i})
+        %{__install} -p -D -m 0755 %{projectlocation}/${i} %{buildroot}/usr/lib/systemd/system/$(basename ${i})
         sed -i 's/#NAME#/%{name}/g' %{buildroot}/usr/lib/systemd/system/$(basename ${i})
     %endif
 done
 
 # replace etc folder
-if [ -d %{buildroot}%{projectlocation}/build/etc ]; then
+if [ -d %{projectlocation}/build/etc ]; then
     rm -rf %{buildroot}%{_sysconfdir}/%{name}
-    cp -rf %{buildroot}%{projectlocation}/build/etc %{buildroot}%{_sysconfdir}/%{name}
+    cp -rf %{projectlocation}/build/etc %{buildroot}%{_sysconfdir}/%{name}
 fi
-
-if [ ! -e %{buildroot}%{projectlocation}/manage.sh ]; then
-    cp -r %{buildroot}%{projectlocation}/rpmtools/python/manage.sh %{buildroot}%{projectlocation}/manage.sh
-fi
-
-chmod 755 %{buildroot}%{projectlocation}/manage.sh
 
 mkdir -p %{buildroot}%{_bindir}
-ln -sf %{projectlocation}/manage.sh %{buildroot}%{_bindir}/%{name}
 
 rm -rf %{buildroot}%{projectlocation}/rpmtools
 rm -rf %{buildroot}%{projectlocation}/build
@@ -230,9 +226,7 @@ rm -rf %{buildroot}
 %files
 %defattr(-,root,root)
 %{__prefix}/%{name}/
-%{gopath}/src/%{gopackage}
 %{gopath}/bin/%{name}
-%{_bindir}/%{name}
 
 %config(noreplace) %{_sysconfdir}/%{name}
 

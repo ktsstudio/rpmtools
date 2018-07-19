@@ -60,7 +60,9 @@ fi
 [[ ${AFTER_INSTALL_CMD} == '' ]] && AFTER_INSTALL_CMD="exit 0"
 
 SPECFILE=$(${META} specfile)
+SPECFILE_SRC=$(${META} specfile_src)
 [[ $SPECFILE == '' ]] && SPECFILE="${CURRENT_DIR}/golang.spec"
+[[ $SPECFILE_SRC == '' ]] && SPECFILE_SRC="${CURRENT_DIR}/golang-src.spec"
 
 echo
 echo
@@ -86,4 +88,20 @@ rpmbuild -bb ${SPECFILE} \
                            --define "meta ${META}" \
                            --define "$([ ${INIT_PRESENTS} -eq 1 ] && echo 'initPresents' || echo 'initAbsent' ) 1" \
                            --define "afterInstallCmd ${AFTER_INSTALL_CMD}" \
+                           --define "gopath ${GOPATH}" \
+&& \
+rpmbuild -bb ${SPECFILE_SRC} \
+                           --define "name ${NAME}${NAMESUFFIX}" \
+                           --define "name_no_suffix ${NAME}" \
+                           --define "gopackage ${GOPACKAGE}" \
+                           --define "version ${VERSION}${VERSIONSUFFIX}" \
+                           --define "release ${RELEASE}" \
+                           --define "source ${SOURCE_DIR}" \
+                           --define "summary ${SUMMARY}" \
+                           --define "requires ${REQUIRES}" \
+                           --define "buildrequires ${BUILD_REQUIRES}" \
+                           --define "meta ${META}" \
+                           --define "$([ ${INIT_PRESENTS} -eq 1 ] && echo 'initPresents' || echo 'initAbsent' ) 1" \
+                           --define "afterInstallCmd ${AFTER_INSTALL_CMD}" \
                            --define "gopath ${GOPATH}"
+
