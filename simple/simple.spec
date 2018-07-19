@@ -7,7 +7,10 @@ Version: %{version}
 Release: %{release}
 BuildRoot: %{_tmppath}/%{name}-%{version}-%{release}-buildroot
 Prefix: %{_prefix}
-BuildRequires: python-argparse
+%if "%{requires}" != "none"
+Requires: %{requires}
+%endif
+BuildRequires: %{buildrequires}
 License: proprietary
 Group: Apps/sys
 Autoreq: 0
@@ -26,6 +29,8 @@ fi
 mkdir -p %{name}
 cp -rf %{source} %{name}/ || true
 cd %{name}
+
+npm install -g yarn
 
 if [ -e "package.json" ]
 then

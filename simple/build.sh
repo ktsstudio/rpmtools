@@ -11,6 +11,8 @@ NAME=$(${META} name)
 VERSION_SUFFIX=""
 SUMMARY=$(${META} name)
 VERSION=$(${META} version | tr '-' '.')
+REQUIRES=$(${META} yumDependencies)
+BUILD_REQUIRES="$(${META} yumBuildDependencies) npm git python-argparse rpm-build redhat-rpm-config"
 RELEASE=$(date +%s)
 
 GRUNTTASK=$(${META} grunttask)
@@ -47,12 +49,16 @@ echo "Requires: $REQUIRES"
 echo "Public dirname: $PUBLIC_DIR_NAME"
 echo
 
+yuminstall ${BUILD_REQUIRES}
+
 rpmbuild -bb ${SPECFILE} \
                    --define "name $NAME" \
                    --define "version $VERSION$VERSION_SUFFIX" \
                    --define "release $RELEASE" \
                    --define "source ${SOURCE_DIR}" \
                    --define "summary $SUMMARY" \
+                   --define "requires $([[ ${REQUIRES} == '' ]] && echo 'none' || echo ${REQUIRES} )" \
+                   --define "buildrequires ${BUILD_REQUIRES}" \
                    --define "meta ${META}" \
                    --define "grunttask ${GRUNTTASK}" \
                    --define "command ${COMMAND}" \
