@@ -6,7 +6,7 @@ Name: %{name}-src
 Summary: %{summary}
 Version: %{version}
 Release: %{release}%{?dist}
-BuildRoot: %{_tmppath}/%{name}-%{version}-%{release}-buildroot
+BuildRoot: %{_tmppath}/%{name}-src--%{version}-%{release}-buildroot
 Prefix: %{_prefix}
 Requires: golang
 %if "%{requires}" != "none"
@@ -66,13 +66,17 @@ pushd %{projectlocation}
     fi
 
     if [ -f "${VENDORLOCK}" ]; then
+        set +x;
         VENDORLOCK_CONTENT=$(cat ${VENDORLOCK})
-        VENDORLOCK_CONTENT_COMMAND=$(%{meta} vendorLockCommand)
-        if [ "${VENDORLOCK_CONTENT_COMMAND}" != "" ]; then
-            VENDORLOCK_CONTENT=$(bash -c "${VENDORLOCK_CONTENT_COMMAND}")
-        fi
+        # VENDORLOCK_CONTENT_COMMAND=$(%{meta} vendorLockCommand)
+        # if [ "${VENDORLOCK_CONTENT_COMMAND}" != "" ]; then
+        #     VENDORLOCK_CONTENT=$(bash -c "${VENDORLOCK_CONTENT_COMMAND}")
+        # fi
 
         HASH=$(echo "${VENDORLOCK_CONTENT}" | md5sum | awk '{ print $1 }')
+        set -x;
+
+        echo "HASH=${HASH}"
         CACHED_VENDOR="/tmp/golang_vendor_${HASH}.tar"
 
         if [ -e "${CACHED_VENDOR}" ]
