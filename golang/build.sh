@@ -49,7 +49,7 @@ GOPACKAGE=$(${META} gopackage)
 VERSION=$(${META} version)
 SUMMARY=$(${META} description)
 REQUIRES=$(${META} yumDependencies)
-BUILD_REQUIRES="$(${META} yumBuildDependencies) python-argparse"
+BUILD_REQUIRES="$(${META} yumBuildDependencies) python-argparse golang rpm-build redhat-rpm-config"
 AFTER_INSTALL_CMD=$(${META} afterInstallCmd)
 USE_SRC=$(${META} srcRPM)
 
@@ -70,7 +70,7 @@ SPECFILE_SRC=$(${META} specfile_src)
 echo
 echo
 echo "Building ${NAME}${NAMESUFFIX} rpm, go package ${GOPACKAGE}, version ${VERSION}, release ${RELEASE}"
-echo "Requires: ${REQUIRES}"
+echo "Requires: '${REQUIRES}'"
 echo "Build requires: ${BUILD_REQUIRES}"
 echo
 
@@ -86,7 +86,7 @@ rpmbuild -bb ${SPECFILE} \
                            --define "release ${RELEASE}" \
                            --define "source ${SOURCE_DIR}" \
                            --define "summary ${SUMMARY}" \
-                           --define "requires ${REQUIRES}" \
+                           --define "requires $([[ ${REQUIRES} == '' ]] && echo 'none' || echo ${REQUIRES} )" \
                            --define "buildrequires ${BUILD_REQUIRES}" \
                            --define "meta ${META}" \
                            --define "$([ ${INIT_PRESENTS} -eq 1 ] && echo 'initPresents' || echo 'initAbsent' ) 1" \
@@ -102,7 +102,7 @@ if [[ "$?" == '0' && "$(${META} srcRPM)" == 'true' ]]; then
                            --define "release ${RELEASE}" \
                            --define "source ${SOURCE_DIR}" \
                            --define "summary ${SUMMARY}" \
-                           --define "requires ${REQUIRES}" \
+                           --define "requires $([ ${REQUIRES} == '' ] && echo 'none' || echo ${REQUIRES} )" \
                            --define "buildrequires ${BUILD_REQUIRES}" \
                            --define "meta ${META}" \
                            --define "$([ ${INIT_PRESENTS} -eq 1 ] && echo 'initPresents' || echo 'initAbsent' ) 1" \

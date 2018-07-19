@@ -8,10 +8,9 @@ Version: %{version}
 Release: %{release}%{?dist}
 BuildRoot: %{_tmppath}/%{name}-%{version}-%{release}-buildroot
 Prefix: %{_prefix}
+%if "%{requires}" != "none"
 Requires: %{requires}
-BuildRequires: golang
-BuildRequires: rpm-build
-BuildRequires: redhat-rpm-config
+%endif
 BuildRequires: %{buildrequires}
 License: proprietary
 Group: Apps/sys
