@@ -53,6 +53,8 @@ BUILD_REQUIRES="$(${META} yumBuildDependencies) python-argparse"
 AFTER_INSTALL_CMD=$(${META} afterInstallCmd)
 USE_SRC=$(${META} srcRPM)
 
+[[ $USE_SRC == '' ]] && USE_SRC="true"
+
 INIT_PRESENTS=0
 if [[ "$(${META} template)" != '' || "$(${META} initScripts)" != '' ]]; then
     INIT_PRESENTS=1
