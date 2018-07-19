@@ -51,6 +51,7 @@ SUMMARY=$(${META} description)
 REQUIRES=$(${META} yumDependencies)
 BUILD_REQUIRES="$(${META} yumBuildDependencies) python-argparse"
 AFTER_INSTALL_CMD=$(${META} afterInstallCmd)
+USE_SRC=$(${META} srcRPM)
 
 INIT_PRESENTS=0
 if [[ "$(${META} template)" != '' || "$(${META} initScripts)" != '' ]]; then
@@ -88,9 +89,10 @@ rpmbuild -bb ${SPECFILE} \
                            --define "meta ${META}" \
                            --define "$([ ${INIT_PRESENTS} -eq 1 ] && echo 'initPresents' || echo 'initAbsent' ) 1" \
                            --define "afterInstallCmd ${AFTER_INSTALL_CMD}" \
-                           --define "gopath ${GOPATH}" \
-&& \
-rpmbuild -bb ${SPECFILE_SRC} \
+                           --define "gopath ${GOPATH}"
+if [[ "$?" == '0' && "$(${META} srcRPM)" == 'true' ]]; then
+    echo "Building src RPM"
+    rpmbuild -bb ${SPECFILE_SRC} \
                            --define "name ${NAME}${NAMESUFFIX}" \
                            --define "name_no_suffix ${NAME}" \
                            --define "gopackage ${GOPACKAGE}" \
@@ -104,4 +106,5 @@ rpmbuild -bb ${SPECFILE_SRC} \
                            --define "$([ ${INIT_PRESENTS} -eq 1 ] && echo 'initPresents' || echo 'initAbsent' ) 1" \
                            --define "afterInstallCmd ${AFTER_INSTALL_CMD}" \
                            --define "gopath ${GOPATH}"
+fi
 
