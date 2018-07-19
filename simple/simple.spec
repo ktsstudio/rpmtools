@@ -11,6 +11,7 @@ Prefix: %{_prefix}
 Requires: %{requires}
 %endif
 BuildRequires: %{buildrequires}
+BuildRequires: nodejs >= 8
 License: proprietary
 Group: Apps/sys
 Autoreq: 0

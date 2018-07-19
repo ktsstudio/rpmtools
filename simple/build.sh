@@ -12,7 +12,7 @@ VERSION_SUFFIX=""
 SUMMARY=$(${META} name)
 VERSION=$(${META} version | tr '-' '.')
 REQUIRES=$(${META} yumDependencies)
-BUILD_REQUIRES="$(${META} yumBuildDependencies) npm git python-argparse rpm-build redhat-rpm-config"
+BUILD_REQUIRES="$(${META} yumBuildDependencies) git python-argparse rpm-build redhat-rpm-config"
 RELEASE=$(date +%s)
 
 GRUNTTASK=$(${META} grunttask)
