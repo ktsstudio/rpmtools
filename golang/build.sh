@@ -91,8 +91,8 @@ rpmbuild -bb ${SPECFILE} \
                            --define "meta ${META}" \
                            --define "$([ ${INIT_PRESENTS} -eq 1 ] && echo 'initPresents' || echo 'initAbsent' ) 1" \
                            --define "afterInstallCmd ${AFTER_INSTALL_CMD}" \
-                           --define "gopath ${GOPATH}"
-if [[ "$?" == '0' && "$(${META} srcRPM)" == 'true' ]]; then
+                           --define "gopath ${GOPATH}" || exit 1
+if [[ "$(${META} srcRPM)" == 'true' ]]; then
     echo "Building src RPM"
     rpmbuild -bb ${SPECFILE_SRC} \
                            --define "name ${NAME}${NAMESUFFIX}" \
