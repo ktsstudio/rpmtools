@@ -16,7 +16,9 @@ BUILD_REQUIRES=""
 INSTALL_BUILD_REQUIRES=1
 AFTER_INSTALL_CMD=""
 PACKAGEJSON="build/package.json"
-export GOPATH="/opt/go"
+if [ -z $GOPATH ]; then
+    export GOPATH="/opt/go"
+fi
 
 function opts {
         TEMP=`getopt -o b:h --long packagejson:,build:,versionsuffix:,namesuffix:,help,disable-build-requires -- "$@"`

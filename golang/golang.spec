@@ -26,9 +26,10 @@ if [ -d %{name} ]; then
     rm -rf %{name}
 fi
 
-if [ -d %{gopath} ]; then
-    echo "Cleaning out stale GOPATH" 1>&2
-    rm -rf %{gopath}
+if [ -d "%{projectlocation}" ]; then
+    echo "Cleaning out stale project GOPATH files" 1>&2
+    rm -rf %{projectlocation}
+    rm -rf %{gopath}/bin/%{name}
 fi
 
 # Setting up GOPATH and project location for building
@@ -38,6 +39,7 @@ mkdir -p %{gopath}/pkg
 mkdir -p %{projectlocation}
 
 echo "Go version: $(go version)"
+echo "GOPATH: %{gopath}"
 
 %pre
 /usr/bin/getent group %{name} || /usr/sbin/groupadd -r %{name}
