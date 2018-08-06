@@ -46,7 +46,7 @@ NAME="$(${META} name)"
 VERSION=$(${META} version)
 SUMMARY=$(${META} description)
 REQUIRES=$(${META} yumDependencies)
-BUILD_REQUIRES="$(${META} yumBuildDependencies) python-argparse golang rpm-build redhat-rpm-config"
+BUILD_REQUIRES="$(${META} yumBuildDependencies) python-argparse rpm-build redhat-rpm-config"
 AFTER_INSTALL_CMD=$(${META} afterInstallCmd)
 
 INIT_PRESENTS=0
@@ -61,7 +61,7 @@ SPECFILE=$(${META} specfile)
 
 echo
 echo
-echo "Building ${NAME}${NAMESUFFIX} rpm, go package ${GOPACKAGE}, version ${VERSION}, release ${RELEASE}"
+echo "Building ${NAME}${NAMESUFFIX} rpm, version ${VERSION}, release ${RELEASE}"
 echo "Requires: '${REQUIRES}'"
 echo "Build requires: ${BUILD_REQUIRES}"
 echo
