@@ -113,7 +113,7 @@ pushd %{projectlocation}
     # Building
     mkdir -p %{gopath}/bin/%{name}
     %{meta} goMain | while read i; do
-        go_build_ldflags="$(%{meta} "goBuild_ldflags._all) $(%{meta} "goBuild_ldflags.$(echo ${i} | sed 's/\./\\./g')")"
+        go_build_ldflags="$(%{meta} goBuild_ldflags._all) $(%{meta} "goBuild_ldflags.$(echo ${i} | sed 's/\./\\./g')")"
         go_build_ldflags=$(eval "echo $go_build_ldflags")
         echo "${i}: ${go_build_ldflags}"
         go build -o "%{gopath}/bin/%{name}/`basename ${i%.*}`" -ldflags "${go_build_ldflags}" "${i}" || exit 1
