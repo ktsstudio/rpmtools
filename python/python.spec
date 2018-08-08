@@ -58,17 +58,24 @@ if [ -f "${REQUIREMENTS}" ]; then
       echo "Found cached virtualenv: ${CACHED_VIRTUALENV}, use it"
       tar xf ${CACHED_VIRTUALENV} %{name}
     else
-      echo "No found cached virtualenv, download..."
+        echo "No found cached virtualenv, download..."
+        %{virtualenv} %{name}/env
+        %{name}/env/bin/pip install -U pip setuptools
 
-      %{virtualenv} %{name}/env
+        if [ "$(%{meta} pipenv)" == 'true' ]; then
+            %{name}/env/bin/pip install -U pipenv
+            CWD=`pwd`
+            pushd %{name}/src
+                VIRTUAL_ENV=${CWD}/%{name}/env ${CWD}/%{name}/env/bin/pipenv install --deploy
+            popd
+        else
+            %{name}/env/bin/pip install -r ${REQUIREMENTS} --upgrade
+        fi
 
-      %{name}/env/bin/pip install -U pip setuptools
-      %{name}/env/bin/pip install -r ${REQUIREMENTS} --upgrade
+        %{virtualenv} --relocatable %{name}/env
 
-      %{virtualenv} --relocatable %{name}/env
-
-      echo "Save virtualenv into cache: ${CACHED_VIRTUALENV}"
-      tar cf ${CACHED_VIRTUALENV} %{name}/env || true
+        echo "Save virtualenv into cache: ${CACHED_VIRTUALENV}"
+        tar cf ${CACHED_VIRTUALENV} %{name}/env || true
     fi
 else
     echo 'Not found requirements, skipped...'
